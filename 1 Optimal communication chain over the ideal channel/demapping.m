@@ -10,7 +10,7 @@ function [bit_rx] = demapping(symb_rx,Nbps,modulation)
 
 Nsymb = size(symb_rx,1); % Number of symbols
 
-switch modulation,
+switch modulation
     
     case 'pam'
         
@@ -28,7 +28,7 @@ switch modulation,
 
         % Binary to gray
         bit_rx2(:,1) = mapp_rx(:,1);
-        for ii = 2:Nbps,
+        for ii = 2:Nbps
             bit_rx2(:,ii) = xor( mapp_rx(:,ii-1) , mapp_rx(:,ii) );
         end
 
@@ -54,7 +54,7 @@ switch modulation,
 
         % Binary to gray
         bit_rx2I(:,1) = mapp_rxI(:,1);
-        for ii = 2:NbpsI,
+        for ii = 2:NbpsI
             bit_rx2I(:,ii) = xor( mapp_rxI(:,ii-1) , mapp_rxI(:,ii) );
         end
 
@@ -77,7 +77,7 @@ switch modulation,
 
         % Binary to gray
         bit_rx2Q(:,1) = mapp_rxQ(:,1);
-        for ii = 2:NbpsQ,
+        for ii = 2:NbpsQ
             bit_rx2Q(:,ii) = xor( mapp_rxQ(:,ii-1) , mapp_rxQ(:,ii) );
         end
       
