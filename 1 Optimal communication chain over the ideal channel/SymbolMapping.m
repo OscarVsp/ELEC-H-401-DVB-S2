@@ -1,4 +1,4 @@
-clear; clc;
+clear all; clc; close all;
 
 
 %%%----Parameters----%%%
