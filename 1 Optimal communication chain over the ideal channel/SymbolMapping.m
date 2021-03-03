@@ -1,14 +1,14 @@
 clear all; clc; close all;
 
 
-%% %----Parameters----%%%
+%% Parameters
 
 Nbit = 200;             %Nombre of bits
 Nbps = 4;               %Nombre of bits per symbol
 mod = 'qam';            %Type of modulation ('qam' or 'pam')
 
 
-%% %----Bit Generator----%%%
+%% Bit Generator
 
 bit_tx = randi(2,Nbit,1)-1;
 
@@ -17,7 +17,7 @@ bit_tx = randi(2,Nbit,1)-1;
 %hold;
 
 
-%% %----Mapping----%%%
+%% Mapping
 
 symb_tx = mapping(bit_tx, Nbps, mod);
 
@@ -27,26 +27,26 @@ hold;
 plot(symb_tx,'.');
 hold;
 
-%% %----Transmitter Filter----%%%
+%% Transmitter Filter
 
 signal_tx = HalfrootNyquistFilter(symb_tx);
 
 
-%% %----Transmission Channel----%%%
+%% Transmission Channel
 
 signal_rx = signal_tx;
 
 
-%% %----Receiver Filter----%%%
+%% Receiver Filter
 
 symb_rx = HalfrootNyquistFilter(signal_rx);
 
 
-%% %----Demapping----%%%
+%% Demapping
 
 bit_rx = demapping(symb_rx, Nbps, mod);
 
 
-%% %----Bits check----%%%
+%% Bits check
 
 check = norm(bit_tx - bit_rx)
