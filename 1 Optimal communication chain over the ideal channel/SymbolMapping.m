@@ -10,7 +10,7 @@ mod = 'qam';            %Type of modulation ('qam' or 'pam')
 
 %% Bit Generator
 
-bit_tx = randi(2,Nbit,1)-1;
+bit_tx = randi(2,1,Nbit)-1;
 
 %fig_bit_tx = figure('Name','bits','NumberTitle','off');
 %plot((0:size(bit_tx)-1),bit_tx);
