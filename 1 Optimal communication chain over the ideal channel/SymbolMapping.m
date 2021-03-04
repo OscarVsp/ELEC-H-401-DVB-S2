@@ -3,8 +3,11 @@ clear all; clc; close all;
 
 %% Parameters
 
-Nbit = 200;             %Nombre of bits
+Nbit = 2000;             %Nombre of bits
 Nbps = 4;               %Nombre of bits per symbol
+f_cut = 1e6; %Hz Cutoff frequency
+fs = 10*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut)
+
 
 
 %% Bit Generator
@@ -23,21 +26,21 @@ end
 
 %% Transmitter Filter
 
-signal_tx = HalfrootNyquistFilter(symb_tx);
+signal_tx = HalfrootNyquistFilter(symb_tx,fs);
 
 
 %% Transmission Channel
 
-%signal_rx = NoiseAddition(signal_tx,fs,Nbit);      %With Noise
+signal_rx = NoiseAddition(signal_tx,fs,Nbit);      %With Noise
 %signal_rx = signal_tx;                              %Without Nosie
 
-%fig_signal_tx = figure('Name','signal_tx','NumberTitle','off');plot(signal_rx,'b.');grid on;hold on;plot(signal_tx,'ro');
+fig_signal_tx = figure('Name','signal_tx','NumberTitle','off');plot(signal_rx,'b.');grid on;hold on;plot(signal_tx,'ro');
 
 
 
 %% Receiver Filter
 
-%symb_rx = HalfrootNyquistFilter(signal_rx);
+%symb_rx = HalfrootNyquistFilter(signal_rx,fs);
 
 
 %% Demapping
