@@ -12,8 +12,8 @@ function [output_signal] = HalfrootNyquistFilter(input_signal)
 beta = 0.3; %Makes the window smoother as beta increases // roll-off factor
 f_cut = 1e6; %Hz Cutoff frequency 
 T = 1/(2*f_cut); %Sampling period to avoid ISI given by the f_cut (slide 29 p211) not sure about this relation !
-N = 10000; % Number of filter samples may be given by the fs
-fs = 25*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut)
+N = 10001; % Number of filter samples may be given by the fs
+fs = 10*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut)
 
 f_step = fs/N;
 f_max = f_step*(N-1)/2;
@@ -46,17 +46,19 @@ H=zeros(length(f));
 %creating the fucntion by the cases given in slide 30 p212
 lower_bound= (1-beta)/(2*T);
 upper_bound= (1+beta)/(2*T);
+tic
 for i = 1:length(f)
-    if abs(f(i)) < lower_bound
+    fi = abs(f(i));
+    if fi < lower_bound
         H(i)=T;
-    elseif (lower_bound <= abs(f(i))) && (abs(f(i)) <= upper_bound )
-        H(i) = (T/2)*( 1 + cos( (pi*T/beta)*(abs(f(i)) - (1-beta)/(2*T))) );
+    elseif fi <= upper_bound
+        H(i) = (T/2)*( 1 + cos( (pi*T/beta)*fi - lower_bound));
     end
 end
-
+toc
 figure(4);
-title("RRC filter window");
-plot(f,H); grid on;
+
+plot(f,H); grid on;title("RRC filter window");
 %% Output
 output_signal = input_signal; %Do the filter
 
