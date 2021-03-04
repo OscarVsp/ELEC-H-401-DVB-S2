@@ -3,29 +3,27 @@ clear all; clc; close all;
 
 %% Parameters
 
-Nbit = 200;             %Nombre of bits
+Nbit = 2000;             %Nombre of bits
 Nbps = 4;               %Nombre of bits per symbol
-mod = 'qam';            %Type of modulation ('qam' or 'pam')
+
+
 
 
 %% Bit Generator
 
 bit_tx = randi(2,Nbit,1)-1;
 
-%fig_bit_tx = figure('Name','bits','NumberTitle','off');
-%plot((0:size(bit_tx)-1),bit_tx);
-%hold;
+
 
 
 %% Mapping
 
-symb_tx = mapping(bit_tx, Nbps, mod);
+if (Nbps > 1)
+    symb_tx = mapping(bit_tx.', bitsPerSymbol, 'qam');
+else
+    symb_tx = mapping(bit_tx.', bitsPerSymbol, 'pam');
+end
 
-fig_symb_tx = figure('Name','Symbols','NumberTitle','off');
-plot(symb_tx,'o'); %mettre les valeurs de références
-hold;
-plot(symb_tx,'.');
-hold;
 
 %% Transmitter Filter
 
@@ -34,17 +32,25 @@ signal_tx = HalfrootNyquistFilter(symb_tx);
 
 %% Transmission Channel
 
-%signal_rx = signal_tx;
+%signal_rx = NoiseAddition(signal_tx,fs,Nbit);      %With Noise
+signal_rx = signal_tx;                              %Without Nosie
+
+fig_signal_tx = figure('Name','signal_tx','NumberTitle','off');plot(signal_rx,'b.');grid on;hold on;plot(signal_tx,'ro');
+
 
 
 %% Receiver Filter
 
-%symb_rx = RRC(signal_rx);
+symb_rx = RRC(signal_rx);
 
 
 %% Demapping
 
-%bit_rx = demapping(symb_rx, Nbps, mod);
+if (Nbps > 1)
+    bit_rx = demapping(symb_rx, bitsPerSymbol, 'qam').';
+else
+    bit_rx = demapping(real(symb_rx), bitsPerSymbol, 'pam').';
+end
 
 
 %% Bits check
