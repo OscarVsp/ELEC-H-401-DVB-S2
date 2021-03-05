@@ -31,7 +31,12 @@ upsampled_symb_tx = UpSampling(symb_tx,Nbit,Nbps,M);
 
 %% Transmitter Filter
 
-signal_tx = HalfrootNyquistFilter(upsampled_symb_tx,fs);
+filter = HalfrootNyquistFilter(fs); %So we compute de filter only 1 time as this is the same
+
+%signal_tx = conv(upsampled_symb_tx,filter); %doesn't work for now, bcs
+%filter is not a vector, it's a 51x51 complexe matrix
+
+signal_tx = upsampled_symb_tx;
 
 
 %% Transmission Channel
@@ -45,7 +50,9 @@ signal_rx = signal_tx;                              %Without Nosie
 
 %% Receiver Filter
 
-upsampled_symb_rx = HalfrootNyquistFilter(signal_rx,fs);
+%upsampled_symb_rx = conv(signal_rx,filter); %same as transmitter
+
+upsampled_symb_rx = signal_rx;
 
 %% Downsampling
 
@@ -55,9 +62,9 @@ symb_rx = DownSampling(upsampled_symb_rx,Nbit,Nbps,M);
 %% Demapping
  
 if (Nbps > 1)
-    bit_rx = demapping(symb_rx', Nbps, 'qam');
+    bit_rx = demapping(symb_rx', Nbps, 'qam')';
 else
-    bit_rx = demapping(real(symb_rx)', Nbps, 'pam');
+    bit_rx = demapping(real(symb_rx)', Nbps, 'pam')';
 end
 
 

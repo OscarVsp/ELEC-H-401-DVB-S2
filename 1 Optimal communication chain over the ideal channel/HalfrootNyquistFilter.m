@@ -1,4 +1,4 @@
-function [output_signal] = HalfrootNyquistFilter(input_signal,fs)
+function [filter] = HalfrootNyquistFilter(fs)
 
 % INPUTS:
 % - input_signal : vector of input signal 
@@ -60,9 +60,9 @@ figure(4);plot(f,H,'*'); grid on;title("RRC filter window");
 
 h = ifft(H);
 h= fftshift(h); %shift to center the sinc
-figure(5); plot(t,abs(h)); grid on; title("Impulse response of the raised cosine");
+figure(5); plot(t,real(h)); grid on; title("Impulse response of the raised cosine");
 %% Output
-output_signal = input_signal; %Do the filter
+filter = h; %Output the filter, the convolution is done on the main function so that we only compute de filter once at the start
 
 end
 
