@@ -61,13 +61,13 @@ end
 % hold on;
 % plot(t,h,'.');
 G = sqrt(H); %Root of the filter to implement it at transmiter and receiver
-figure(6);plot(f,G,'*'); grid on;title("RRC filter window");
+%figure(6);plot(f,G,'*'); grid on;title("RRC filter window");
 g = ifft(G);
 g= fftshift(g); %shift to center the sinc
 
 h= ifft(H);
 h= fftshift(h);
-figure(5); plot(t,real(g));grid on; title("Impulse response of the raised cosine"); figure(4); plot(t,real(h)); grid on; title("Impulse response of the raised cosine");
+%figure(5); plot(t,real(g));grid on; title("Impulse response of the raised cosine"); figure(4); plot(t,real(h)); grid on; title("Impulse response of the raised cosine");
 %ça passe super près de 0 mais savoir si c'est négligeable :/ ?
 %% Output
 filter = g; %Output the filter, the convolution is done on the main function so that we only compute de filter once at the start

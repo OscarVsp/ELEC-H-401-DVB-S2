@@ -3,19 +3,19 @@ clear all; clc; close all;
 
 %% Parameters
 
-image_tx = 'cp';
-[bit_tx,nbl,nbc] = ImageToBits(image_tx);
+%image_tx = 'cp.png'; %Only 24bits images
+%[bit_tx,nbl,nbc,nbd] = ImageToBits(image_tx);
 
 Nbit = 2000;
 Nbps = 4;               %Nombre of bits per symbol
 M = 4;       %Upsampling factor
 f_cut = 1e6; %Hz Cutoff frequency
 fs = 10*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut)
-
+EbNo = 0.1; %Energy of one by over the PSD of the noise ratio (in dB)
 
 %% Bit Generator
 
-%bit_tx = randi(2,1,Nbit)-1; 
+bit_tx = randi(2,1,Nbit)-1; 
 Nbit = length(bit_tx);
 
 %% Mapping
@@ -43,7 +43,7 @@ signal_tx = upsampled_symb_tx;
 
 %% Transmission Channel
 
-signal_rx = NoiseAddition(signal_tx,fs,Nbit);      %With Noise
+signal_rx = NoiseAddition(signal_tx,EbNo,fs,Nbit);      %With Noise
 %signal_rx = signal_tx;                              %Without Nosie
 
 %fig_signal_tx = figure('Name','signal_tx','NumberTitle','off');plot(signal_rx,'b.');grid on;hold on;plot(signal_tx,'ro');
@@ -74,4 +74,5 @@ end
 
 ErrorRatio = ErrorCalculator(bit_rx,bit_tx)
 
-Image_rx = BitsToImage(bit_rx,nbl,nbc);
+image_rx = BitsToImage(bit_rx,nbl,nbc,nbd);
+figure('name',"BER = "+num2str(ErrorRatio,4));image(image_rx);
