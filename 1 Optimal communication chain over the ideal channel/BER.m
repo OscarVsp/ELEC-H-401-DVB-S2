@@ -83,10 +83,10 @@ end
 
 
 fig1 = figure(1);
-semilogy(test_value_array,BER_array,'b');
+plot(test_value_array,10*log10(BER_array),'b');
 hold on;
 limite = ones(1,length(test_value_array))./Nbit;
-semilogy(test_value_array,limite,'r');
+plot(test_value_array,10*log10(limite),'r');
 hold on;
 title('BER fonction of Eb/No.');
 xlabel('Eb/No (dB)');
