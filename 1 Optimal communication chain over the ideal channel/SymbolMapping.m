@@ -6,9 +6,9 @@ clear all; clc; close all;
 % image_tx = 'cp.png'; %Only 3x8bits images
 % [bit_tx,nbl,nbc,nbd] = ImageToBits(image_tx);
 
-Nbit = 2000;
+Nbit = 1000;
 Nbps = 4;               %Nombre of bits per symbol
-M = 128;       %Upsampling factor
+M = 64;       %Upsampling factor
 f_cut = 1e6; %Hz Cutoff frequency
 fs = 10*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut)
 EbNo =50; %Energy of one by over the PSD of the noise ratio (in dB)
@@ -34,12 +34,13 @@ upsampled_symb_tx = UpSampling(symb_tx,Nbit,Nbps,M);
 %% Transmitter Filter
 
 filter = HalfrootNyquistFilter(fs); %So we compute de filter only 1 time as this is the same
+N_filter = length(filter);
 
 signal_tx = conv(upsampled_symb_tx,filter);%Convolution of the signal with the filter
 
-N_filter = length(filter);
-signal_tx = signal_tx(floor(N_filter/2):(length(signal_tx)-floor(N_filter/2)-1) ); %Removing unecessary parts due to convolution (conv length = N + M -1 and we need to stay at M)
-figure(7); stem(abs(signal_tx)); title("transmited signal")
+
+
+%figure(7); stem(abs(signal_tx)); title("transmited signal")
 %signal_tx = upsampled_symb_tx;
 
 
@@ -55,7 +56,9 @@ signal_rx = signal_tx;                              %Without Nosie
 %% Receiver Filter
 matched_filter = flip(filter); %Get the time reversal of the filter g(-t) 
 upsampled_symb_rx = conv(signal_rx,matched_filter); %Matched filter convolved with the signal
-upsampled_symb_rx = upsampled_symb_rx(floor(N_filter/2):(length(upsampled_symb_rx)-floor(N_filter/2)-1) );
+length(upsampled_symb_rx)
+figure(8);stem(real(upsampled_symb_rx)); title("upsampled received signal"); grid on;
+signal_tx = signal_tx( (N_filter-1):(length(signal_tx)-N_filter-1) ); %Removing unecessary parts due to convolution (conv length = N + M -1 and we need to stay at M) --> to be sure to start at t=0
 %upsampled_symb_rx = signal_rx;
 
 %% Downsampling
