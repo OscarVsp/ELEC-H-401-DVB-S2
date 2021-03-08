@@ -1,9 +1,0 @@
-image_tx_int = [[0 0 255 255];[0 255 0 255];[255 0 0 255];[0 0 255 255]]
-[nbl,nbc] = size(image_tx_int) ;
-%image_tx_int = reshape(image_tx_int,1,nbl*nbc)
-image_tx_bin = de2bi(image_tx_int,8);
-bits_tx = reshape(image_tx_bin,1,nbl*nbc*8);
-bits_rx = bits_tx;
-image_rx_bin = reshape(bits_rx,nbl*nbc,8);
-image_rx_int = bi2de(image_rx_bin);
-image_rx_int = reshape(image_rx_int,nbl,nbc)>0;
