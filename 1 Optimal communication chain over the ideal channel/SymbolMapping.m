@@ -3,18 +3,20 @@ clear all; clc; close all;
 
 %% Parameters
 
-Nbit = 2000;             %Nombre of bits
+image_tx = 'cp';
+[bit_tx,nbl,nbc] = ImageToBits(image_tx);
+
+Nbit = 2000;
 Nbps = 4;               %Nombre of bits per symbol
 M = 4;       %Upsampling factor
 f_cut = 1e6; %Hz Cutoff frequency
 fs = 10*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut)
 
 
-
 %% Bit Generator
 
-bit_tx = randi(2,1,Nbit)-1; 
-
+%bit_tx = randi(2,1,Nbit)-1; 
+Nbit = length(bit_tx);
 
 %% Mapping
 
@@ -41,8 +43,8 @@ signal_tx = upsampled_symb_tx;
 
 %% Transmission Channel
 
-%signal_rx = NoiseAddition(signal_tx,fs,Nbit);      %With Noise
-signal_rx = signal_tx;                              %Without Nosie
+signal_rx = NoiseAddition(signal_tx,fs,Nbit);      %With Noise
+%signal_rx = signal_tx;                              %Without Nosie
 
 %fig_signal_tx = figure('Name','signal_tx','NumberTitle','off');plot(signal_rx,'b.');grid on;hold on;plot(signal_tx,'ro');
 
@@ -70,4 +72,6 @@ end
 
 %% Bits check
 
-check_bits = norm(bit_tx - bit_rx)
+ErrorRatio = ErrorCalculator(bit_rx,bit_tx)
+
+Image_rx = BitsToImage(bit_rx,nbl,nbc);

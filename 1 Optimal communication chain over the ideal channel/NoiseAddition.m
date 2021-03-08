@@ -8,7 +8,7 @@ function [signal_noise] = NoiseAddition(signal,fs,Nbit)
 
 %% Parameters
 
-EbNo = 50; %Energy of one by over the PSD of the noise ratio (in dB)
+EbNo = 100; %Energy of one by over the PSD of the noise ratio (in dB)
 
 %% Calculs
 
