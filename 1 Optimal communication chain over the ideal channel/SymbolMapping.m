@@ -3,8 +3,8 @@ clear all; clc; close all;
 
 %% Parameters
 
-%image_tx = 'cp.png'; %Only 24bits images
-%[bit_tx,nbl,nbc,nbd] = ImageToBits(image_tx);
+image_tx = 'cp.png'; %Only 3x8bits images
+[bit_tx,nbl,nbc,nbd] = ImageToBits(image_tx);
 
 Nbit = 2000;
 Nbps = 4;               %Nombre of bits per symbol
@@ -15,7 +15,7 @@ EbNo = 0.1; %Energy of one by over the PSD of the noise ratio (in dB)
 
 %% Bit Generator
 
-bit_tx = randi(2,1,Nbit)-1; 
+%bit_tx = randi(2,1,Nbit)-1; 
 Nbit = length(bit_tx);
 
 %% Mapping
