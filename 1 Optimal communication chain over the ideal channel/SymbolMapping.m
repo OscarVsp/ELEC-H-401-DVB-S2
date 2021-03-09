@@ -8,7 +8,7 @@ clear all; clc; close all;
 
 Nbit = 1000;
 Nbps = 4;               %Nombre of bits per symbol
-M = 64;       %Upsampling factor
+M = 32;       %Upsampling factor
 f_cut = 1e6; %Hz Cutoff frequency
 fs = 10*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut)
 EbNo =50; %Energy of one by over the PSD of the noise ratio (in dB)
@@ -56,8 +56,9 @@ signal_rx = signal_tx;                              %Without Nosie
 %% Receiver Filter
 matched_filter = flip(filter); %Get the time reversal of the filter g(-t) 
 upsampled_symb_rx = conv(signal_rx,matched_filter); %Matched filter convolved with the signal
-length(upsampled_symb_rx)
-figure(8);stem(real(upsampled_symb_rx)); title("upsampled received signal"); grid on;
+
+
+%figure(8);stem(real(upsampled_symb_rx)); title("upsampled received signal"); grid on;
 signal_tx = signal_tx( (N_filter-1):(length(signal_tx)-N_filter-1) ); %Removing unecessary parts due to convolution (conv length = N + M -1 and we need to stay at M) --> to be sure to start at t=0
 %upsampled_symb_rx = signal_rx;
 
