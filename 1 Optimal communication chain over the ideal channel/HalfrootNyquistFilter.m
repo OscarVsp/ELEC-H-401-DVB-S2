@@ -12,7 +12,7 @@ function [filter] = HalfrootNyquistFilter(fs)
 
 %% filter parameters
 
-beta = 0.3; %Makes the window smoother as beta increases // roll-off factor
+beta = 0.3; %Makes the window smoother as beta increases // roll-off factor given in the specifications
 T = 1/(2*(fs/10)) %Sampling period to avoid ISI given by the f_cut (slide 29 p211) not sure about this relation !
 N = 201; % Number of filter samples may be given by the fs
 
@@ -57,8 +57,11 @@ end
 
 G = sqrt(H); %Root of the filter to implement it at transmiter and receiver
 figure(6);plot(f,G,'*'); grid on;title("RRC filter window");
+
+G=ifftshift(G);
+g_norm= ifft(ifftshift(H));
 g = ifft(G);
-g= fftshift(g); %shift to center the sinc
+g= fftshift(g/sqrt(g_norm(1))); %shift to center the sinc
 
 h= ifft(H);
 h= fftshift(h/h(1));
