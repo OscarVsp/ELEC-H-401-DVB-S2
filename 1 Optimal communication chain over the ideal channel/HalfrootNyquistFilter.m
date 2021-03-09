@@ -59,15 +59,19 @@ G = sqrt(H); %Root of the filter to implement it at transmiter and receiver
 figure(6);plot(f,G,'*'); grid on;title("RRC filter window");
 
 G=ifftshift(G);
+hold on; plot(f,G,'O')
 g_norm= ifft(ifftshift(H));
 g = ifft(G);
+figure(11);plot(t,g); grid on; title("Impusle response g NOT normalised nor shifted") ; 
 g= fftshift(g/sqrt(g_norm(1))); %shift to center the sinc
 
-h= ifft(H);
+h= ifft(sqrt(H));
+figure(4); plot(t,real(h)); grid on; title("Impulse response of the raised cosine h(t)");
 h= fftshift(h/h(1));
-%figure(5); plot(t,real(g));grid on; title("Impulse response of the raised cosine"); 
-figure(4); plot(t,real(h)); grid on; title("Impulse response of the raised cosine");
-%ça passe super près de 0 mais savoir si c'est négligeable :/ ?
+figure(12); plot(t,real(h)); grid on; title("Impulse response h normalised and shifted"); 
+figure(5); plot(t,real(g));grid on; title("Impulse response of the raised cosine g(t) normalized and fftshifted"); 
+
+
 %% Output
 filter = g; %Output the filter, the convolution is done on the main function so that we only compute de filter once at the start
 
