@@ -20,7 +20,7 @@ bit_tx = randi(2,1,Nbit)-1;
 Nbit = length(bit_tx);
 
 %% Mapping
-
+%Maps the bits into desired symbols in the complex plane 
 if (Nbps > 1)
     symb_tx = mapping(bit_tx', Nbps, 'qam')';
 else
@@ -36,7 +36,6 @@ upsampled_symb_tx = UpSampling(symb_tx,Nbit,Nbps,M);
 %% Transmitter Filter
 
 filter = HalfrootNyquistFilter(fs,T_symb); %So we compute de filter only 1 time as this is the same
-N_filter = length(filter);
 
 signal_tx = conv(upsampled_symb_tx,filter);%Convolution of the signal with the filter
 
@@ -57,13 +56,11 @@ signal_rx = NoiseAddition(signal_tx,EbNo,fs,Nbit);      %With Noise
 
 %% Receiver Filter
 matched_filter = flip(filter); %Get the time reversal of the filter g(-t) 
-upsampled_symb_rx = conv(signal_rx,matched_filter,'valid'); %Matched filter convolved with the signal
+upsampled_symb_rx = conv(signal_rx,matched_filter,'valid'); %Matched filter convolved with the signal; 'valid' to remove padded zeroes added by the convolution
 
 
-%figure(8);stem(abs(upsampled_symb_rx)); title("upsampled received signal"); grid on;
-%upsampled_symb_rx = upsampled_symb_rx( (N_filter):(length(upsampled_symb_rx)-(N_filter-1)) ); %Removing unecessary parts due to convolution (conv length = N + M -1 and we need to stay at M) --> to be sure to start at t=0
 %figure(9);stem(abs(upsampled_symb_rx)); title("Received signal truncated to start at first tap"); grid on;
-%upsampled_symb_rx = signal_rx;
+
 
 %% Downsampling
 
