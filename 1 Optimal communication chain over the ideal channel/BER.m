@@ -1,27 +1,27 @@
 clear all; clc; close all;
 %% Parameters
 
-Ns = 500; %Number of sample to send for each test
+Ns = 100; %Number of sample to send for each test
 
-Nbit = 1000;
-Nbps_array = [1 2 4 6];               %Nombre of bits per symbol
+Nbit = 12000;
+Nbps = 6;               %Nombre of bits per symbol
 M = 16;       %Upsampling factor
+M_array = [2 4 8 16 32 48 64];
 f_cut = 1e6; %Hz Cutoff frequency
 T_symb = 1/(2*f_cut);
 fs = M*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut) Its the freq on which the conv of the filter and the signal will be done --> has to be the same !!!
 EbNo = 10; %Energy of one by over the PSD of the noise ratio (in dB)
 
-test_value_array = (1:0.25:20); %the values to test for the parameters
+test_value_array = (1:1:20); %the values to test for the parameters
 BER_array = zeros(4,length(test_value_array));
 
-
-for j = 1:4 
+fig1 = figure(1);
+for j = 1:7
     
-    
-    Nbps = Nbps_array(j)
+    M = M_array(j);
 
     for i = 1:length(test_value_array)
-        compteur = i*100/length(test_value_array)/4 +(j-1)*100/4 %Just a percent compteur for us
+        compteur = i*100/length(test_value_array)/7 +(j-1)*100/7 %Just a percent compteur for us
         EbNo = test_value_array(i); %HERE REMPLACE THE PARAMETER
         BER_samples = zeros(1,Ns);
         for n = 1:Ns
@@ -97,27 +97,12 @@ for j = 1:4
         end
         BER_array(j,i) = mean(BER_samples); 
     end
+    semilogy(test_value_array,BER_array(j,:));
+    hold on;
 end
 
-fig1 = figure(1);
-% plot(test_value_array,10*log10(BER_array(1,:)),'b');
-% hold on;
-% plot(test_value_array,10*log10(BER_array(2,:)),'r');
-% hold on;
-% plot(test_value_array,10*log10(BER_array(3,:)),'g');
-% hold on;
-% plot(test_value_array,10*log10(BER_array(4,:)),'y');
-% hold on;
-semilogy(test_value_array,BER_array(1,:),'b');
-hold on;
-semilogy(test_value_array,BER_array(2,:),'r');
-hold on;
-semilogy(test_value_array,BER_array(3,:),'g');
-hold on;
-semilogy(test_value_array,BER_array(4,:),'black');
-hold on;
 title('BER fonction of Eb/No.');
 xlabel('Eb/No (dB)');
 ylabel('BER');
-legend('BPSK','QPSK','4QAM','16QAM');
+legend('M = 2','M = 4','M = 8','M = 16','M = 32','M = 48','M = 64');
 
