@@ -1,4 +1,4 @@
-function [filter] = HalfrootNyquistFilter(fs)
+function [filter] = HalfrootNyquistFilter(fs,T_symb)
 
 % INPUTS:
 % - input_signal : vector of input signal 
@@ -13,7 +13,7 @@ function [filter] = HalfrootNyquistFilter(fs)
 %% filter parameters
 
 beta = 0.3; %Makes the window smoother as beta increases // roll-off factor given in the specifications
-T = 1/(2*(fs/10)) %Sampling period to avoid ISI given by the f_cut (slide 29 p211) not sure about this relation !
+T = T_symb; %Sampling period to avoid ISI given by the f_cut (slide 29 p211) not sure about this relation !
 N = 201; % Number of filter samples may be given by the fs
 
 f_step = fs/N;
@@ -42,7 +42,7 @@ upper_bound= (1+beta)/(2*T);
 
 for i = 1:N
     fi = abs(f(i));
-    if fi < lower_bound
+    if fi <= lower_bound
         H(i)=T;
     elseif fi <= upper_bound
         H(i) = T*( 1 + cos( pi*T*(fi - lower_bound)/beta))/2;
@@ -56,20 +56,21 @@ end
 
 
 G = sqrt(H); %Root of the filter to implement it at transmiter and receiver
-figure(6);plot(f,G,'*'); grid on;title("RRC filter window");
+%figure(6);plot(f,G,'*'); grid on;title("RRC filter window");
 
 G=ifftshift(G);
-hold on; plot(f,G,'O')
+%hold on; plot(f,G,'O')
 g_norm= ifft(ifftshift(H));
 g = ifft(G);
-figure(11);plot(t,g); grid on; title("Impusle response g NOT normalised nor shifted") ; 
+%figure(11);plot(t,g); grid on; title("Impusle response g NOT normalised nor shifted") ; 
 g= fftshift(g/sqrt(g_norm(1))); %shift to center the sinc
+%figure(15);plot(t,g); grid on; title("Impusle response g NOT normalised") ; 
 
-h= ifft(sqrt(H));
-figure(4); plot(t,real(h)); grid on; title("Impulse response of the raised cosine h(t)");
-h= fftshift(h/h(1));
-figure(12); plot(t,real(h)); grid on; title("Impulse response h normalised and shifted"); 
-figure(5); plot(t,real(g));grid on; title("Impulse response of the raised cosine g(t) normalized and fftshifted"); 
+% h = ifft(sqrt(H));
+% figure(4); plot(t,real(h)); grid on; title("Impulse response of the raised cosine h(t)");
+% h = fftshift(h/h(1));
+% figure(12); plot(t,real(h)); grid on; title("Impulse response h normalised and shifted"); 
+% figure(5); plot(t,real(g));grid on; title("Impulse response of the raised cosine g(t) normalized and fftshifted"); 
 
 
 %% Output
