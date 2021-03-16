@@ -16,8 +16,14 @@ EbNo = 10; %Energy of one by over the PSD of the noise ratio (in dB)
 
 %% Bit Generator
 
-bit_tx = randi(2,1,Nbit)-1; 
-Nbit = length(bit_tx);
+bits = randi(2,1,Nbit)-1;
+check_mult = mod(Nbit,Nbps);
+if check_mult == 1
+    bit_tx = bits;
+else
+    bit_tx = [bits  zeros(1,Nbps - check_mult)];
+end
+Nbit_tx = length(bit_tx);
 
 %% Mapping
 %Maps the bits into desired symbols in the complex plane 
@@ -30,7 +36,7 @@ end
 %figure(12); grid on; title("Mapped signal in absolute value"); stem(abs(symb_tx));
 %% Upsampling
 
-upsampled_symb_tx = UpSampling(symb_tx,Nbit,Nbps,M);
+upsampled_symb_tx = UpSampling(symb_tx,Nbit_tx,Nbps,M);
 
 
 %% Transmitter Filter
@@ -64,7 +70,7 @@ upsampled_symb_rx = conv(signal_rx,matched_filter,'valid'); %Matched filter conv
 
 %% Downsampling
 
-symb_rx = DownSampling(upsampled_symb_rx,Nbit,Nbps,M);
+symb_rx = DownSampling(upsampled_symb_rx,Nbit_tx,Nbps,M);
 
 %figure(10); grid on; stem(abs(symb_rx)); title("Received downsampled signals")
 %% Demapping
@@ -74,6 +80,8 @@ if (Nbps > 1)
 else
     bit_rx = demapping(real(symb_rx)', Nbps, 'pam')';
 end
+
+bit_down_scaled = bit_rx(1:Nbit);
 
 
 %% Bits check
