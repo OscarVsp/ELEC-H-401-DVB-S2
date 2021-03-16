@@ -11,7 +11,7 @@ Nbps = 4;               %Nombre of bits per symbol (1 = BPSK, 2 = 4QAM, 4 = 16QA
 M = 20;       %Upsampling factor
 f_cut = 1e6; %Hz Cutoff frequency
 fs = M*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut) Its the freq on which the conv of the filter and the signal will be done --> has to be the same !!!
-T_symb = 1/(2*(fs/10))
+T_symb = 1/(2*(fs/10));
 EbNo = 10; %Energy of one by over the PSD of the noise ratio (in dB)
 
 %% Bit Generator
