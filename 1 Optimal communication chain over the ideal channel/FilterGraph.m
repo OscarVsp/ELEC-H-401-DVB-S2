@@ -6,13 +6,13 @@ clear all; clc; close all;
 % image_tx = 'cp.png'; %Only 3x8bits images
 % [bit_tx,nbl,nbc,nbd] = ImageToBits(image_tx);
 
-Nbit = 20;
+Nbit = 2000;
 Nbps = 4;               %Nombre of bits per symbol (1 = BPSK, 2 = 4QAM, 4 = 16QAM, 6 = 64QAM)
 M = 16;       %Upsampling factor
 f_cut = 1e6; %Hz Cutoff frequency
 T_symb = 1/(2*f_cut);
 fs = M*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut) Its the freq on which the conv of the filter and the signal will be done --> has to be the same !!!
-EbNo = 15; %Energy of one by over the PSD of the noise ratio (in dB)
+EbNo = 1; %Energy of one by over the PSD of the noise ratio (in dB)
 
 %% Bit Generator
 
@@ -45,9 +45,10 @@ signal_tx_2 = upsampled_symb_tx;
 
 %% Transmission Channel
 
-signal_rx = NoiseAddition(signal_tx,EbNo,fs,Nbit);      %With Noise
-signal_rx_2 = NoiseAddition(signal_tx_2,EbNo,fs,Nbit);                          %Without Nosie
-
+signal_rx = NoiseAddition(signal_tx,EbNo,fs,Nbit,T_symb);      %With Noise
+%signal_rx = signal_tx;
+signal_rx_2 = NoiseAddition(signal_tx_2,EbNo,fs,Nbit,T_symb);                          %Without Nosie
+%signal_rx_2 = signal_tx_2;
 
 
 
@@ -81,12 +82,12 @@ end
 
 %% Bits check
 
-%ErrorRatio = ErrorCalculator(bit_rx,bit_tx)
+ErrorRatio = ErrorCalculator(bit_rx,bit_tx)
 
-figure(1); stem(real(bit_tx)); hold on; stem(real(bit_rx)); hold on; stem(real(bit_rx_2)); hold on;legend('tx','rx filter','rx no filter'); title("Bits");
-figure(2); stem(real(symb_tx)); hold on; stem(real(symb_rx)); hold on; stem(real(symb_rx_2)); hold on; legend('tx','rx filter','rx no filter');title("Symbol");
-figure(3); stem(real(upsampled_symb_tx)); hold on; stem(real(upsampled_symb_rx));hold on; stem(real(upsampled_symb_rx_2));hold on;legend('tx','rx filter','rx no filter'); title("Symbol upsampled");
-figure(4); stem(real(signal_tx)); hold on; stem(real(signal_rx));hold on; legend('signal filter','signal filter with noise');title("Signal tx after fitler");
-figure(5); stem(real(signal_tx_2)); hold on; stem(real(signal_rx_2));hold on; legend('signal no filter','signal no filter with noise');title("Signal rx after fitler");
+%figure(1); stem(real(bit_tx)); hold on; stem(real(bit_rx)); hold on; stem(real(bit_rx_2)); hold on;legend('tx','rx filter','rx no filter'); title("Bits");
+figure(2); plot((symb_tx),'o'); hold on; plot((symb_rx),'*'); hold on; plot((symb_rx_2),'.'); hold on; legend('tx','rx filter','rx no filter');title("Symbol");
+% figure(3); stem(real(upsampled_symb_tx)); hold on; stem(real(upsampled_symb_rx));hold on; stem(real(upsampled_symb_rx_2));hold on;legend('tx','rx filter','rx no filter'); title("Symbol upsampled");
+% figure(4); stem(real(signal_tx)); hold on; stem(real(signal_rx));hold on; legend('signal filter','signal filter with noise');title("Signal tx after fitler");
+% figure(5); stem(real(signal_tx_2)); hold on; stem(real(signal_rx_2));hold on; legend('signal no filter','signal no filter with noise');title("Signal rx after fitler");
 %image_rx = BitsToImage(bit_rx,nbl,nbc,nbd);
 %figure('name',"BER = "+num2str(ErrorRatio,4));image(image_rx);
