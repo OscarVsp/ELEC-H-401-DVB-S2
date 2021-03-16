@@ -1,7 +1,7 @@
 clear all; clc; close all;
 %% Parameters
 
-N_average = 100; %Number of sample to send for each test
+N_average = 200; %Number of sample to send for each test
 
 Nbit = 12000;
 Nbps = 4;               %Nombre of bits per symbol
@@ -13,7 +13,7 @@ EbNo = 10; %Energy of one by over the PSD of the noise ratio (in dB)
 
 first_value_array = [4 8 16 32 48 64 96 128]; %M
 second_value_array = [1 2 4 6]; %NBPS
-third_value_array = (1:1:30); %EbNo
+third_value_array = (1:0.5:30); %EbNo
 
 for k = 1:length(first_value_array)
     
@@ -22,7 +22,7 @@ for k = 1:length(first_value_array)
     BER_array = zeros(4,length(third_value_array));
     for j = 1:length(second_value_array)
 
-        Npbs = second_value_array(j); %Nbps
+        Nbps = second_value_array(j); %Nbps
 
         for i = 1:length(third_value_array)
 
@@ -87,7 +87,7 @@ for k = 1:length(first_value_array)
         hold on;
     end
 
-    title("BER fonction of Eb/No. M =" + int2str(M));
+    title("BER fonction of Eb/No M =" + int2str(M)+", Nbit ="+int2str(Nbit)+", N average ="+int2str(N_average));
     xlabel('Eb/No (dB)');
     ylabel('BER');
     %legend('M = 2','M = 4','M = 8','M = 16','M = 32','M = 48','M = 64');
