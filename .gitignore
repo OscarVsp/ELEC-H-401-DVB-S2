@@ -1,3 +1,4 @@
 *.asv
 test.m
 test2.m
+NoisySymbols*.fig

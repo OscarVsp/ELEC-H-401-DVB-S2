@@ -1,33 +1,33 @@
 clear all; clc; close all;
 %% Parameters
 
-N_average = 200; %Number of sample to send for each test
+N_average = 100; %Number of sample to send for each test
 
 Nbit = 12000;
 Nbps = 4;               %Nombre of bits per symbol
 M = 4;       %Upsampling factor
 f_cut = 1e6; %Hz Cutoff frequency
 T_symb = 1/(2*f_cut);
-fs = M*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut) Its the freq on which the conv of the filter and the signal will be done --> has to be the same !!!
 EbNo = 10; %Energy of one by over the PSD of the noise ratio (in dB)
 
-first_value_array = [4 8 16 32 48 64 96 128]; %M
-second_value_array = [1 2 4 6]; %NBPS
-third_value_array = (1:0.5:30); %EbNo
+M_array = [1 2 3 4 5 6 8 12 16]; %M
+Nbps_array = [1 2 4 6]; %NBPS
+EbNo_array = (1:1:30); %EbNo
 
-for k = 1:length(first_value_array)
+for k = 1:length(Nbps_array)
     
-    M = first_value_array(k);
+    Nbps = Nbps_array(k);
     figure(k);
-    BER_array = zeros(4,length(third_value_array));
-    for j = 1:length(second_value_array)
+    BER_array = zeros(4,length(EbNo_array));
+    for j = 1:length(M_array)
 
-        Nbps = second_value_array(j); %Nbps
+        M = M_array(j); %Nbps
 
-        for i = 1:length(third_value_array)
+        for i = 1:length(EbNo_array)
 
-            compteur = ((i-1) + (j-1)*length(third_value_array) + (k-1)*(length(third_value_array)*length(second_value_array)))*(100)/(length(first_value_array)*length(second_value_array)*length(third_value_array)) %Percent compteur for us
-            EbNo = third_value_array(i); %EbNo
+            compteur = ((i-1) + (j-1)*length(EbNo_array) + (k-1)*(length(EbNo_array)*length(M_array)))*(100)/(length(M_array)*length(Nbps_array)*length(EbNo_array)) %Percent compteur for us
+            EbNo = EbNo_array(i); %EbNo
+            fs = M*f_cut;
             BER_samples = zeros(1,N_average);
             for n = 1:N_average
                 %% Bit Generator
@@ -83,14 +83,15 @@ for k = 1:length(first_value_array)
             end
             BER_array(j,i) = mean(BER_samples); 
         end
-        semilogy(third_value_array,BER_array(j,:));
+        semilogy(EbNo_array,BER_array(j,:));
         hold on;
     end
 
-    title("BER fonction of Eb/No M =" + int2str(M)+", Nbit ="+int2str(Nbit)+", N average ="+int2str(N_average));
+    title("BER fonction of Eb/No Nbps =" + int2str(Nbps)+", Nbit ="+int2str(Nbit)+", N average ="+int2str(N_average));
+    %title("BER fonction of Eb/No M =" + int2str(M)+", Nbit ="+int2str(Nbit)+", N average ="+int2str(N_average));
     xlabel('Eb/No (dB)');
     ylabel('BER');
-    %legend('M = 2','M = 4','M = 8','M = 16','M = 32','M = 48','M = 64');
-    legend('BPSK','QPSK','16QAM','64QAM');
+    legend('M = 1','M = 2','M = 3','M = 4','M = 5','M = 6','M = 8','M = 12','M = 16');
+    %legend('BPSK','QPSK','16QAM','64QAM');
 
 end
