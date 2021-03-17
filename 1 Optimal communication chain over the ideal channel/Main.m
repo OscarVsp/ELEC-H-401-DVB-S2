@@ -13,7 +13,7 @@ f_cut = 1e6; %Hz Cutoff frequency
 fs = M*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut) Its the freq on which the conv of the filter and the signal will be done --> has to be the same !!!
 T_symb = 1/(2*(fs/10));
 EbNo = 10; %Energy of one by over the PSD of the noise ratio (in dB)
-
+N_taps = 201; %number of taps of the filter
 %% Bit Generator
 
 bits = randi(2,1,Nbit)-1;
@@ -41,7 +41,7 @@ upsampled_symb_tx = UpSampling(symb_tx,Nbit_tx,Nbps,M);
 
 %% Transmitter Filter
 
-filter = HalfrootNyquistFilter(fs,T_symb); %So we compute de filter only 1 time as this is the same
+filter = HalfrootNyquistFilter(fs,T_symb,N_taps); %So we compute de filter only 1 time as this is the same
 
 signal_tx = conv(upsampled_symb_tx,filter);%Convolution of the signal with the filter
 

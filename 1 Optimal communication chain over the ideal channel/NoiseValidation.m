@@ -3,12 +3,14 @@ clear all; clc; close all;
 
 %% Parameters
 
-Nbit = 6000000;
+Nbit = 600000;
 Nbps = 4;               %Nombre of bits per symbol (1 = BPSK, 2 = 4QAM, 4 = 16QAM, 6 = 64QAM)
 M = 2;       %Upsampling factor
 f_cut = 1e6; %Hz Cutoff frequency
 fs = M*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut) Its the freq on which the conv of the filter and the signal will be done --> has to be the same !!!
 T_symb = 1/(2*(fs/10));
+N_taps = 201; %number of taps of the filter
+
 EbNo_array = [2 4 8 12 16 24];
 ErrorRatio_array = zeros(1,length(EbNo_array));
 legend_array = ["test"];

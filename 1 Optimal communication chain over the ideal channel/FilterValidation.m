@@ -2,15 +2,16 @@ clear all; clc; close all;
 
 Nbit = 3000;
 Nbps = 4;               %Nombre of bits per symbol (1 = BPSK, 2 = 4QAM, 4 = 16QAM, 6 = 64QAM)
-M = 24;       %Upsampling factor
+M = 16;       %Upsampling factor
 f_cut = 1e6; %Hz Cutoff frequency
 fs = M*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut) Its the freq on which the conv of the filter and the signal will be done --> has to be the same !!!
 T_symb = 1/(2*(fs/10))
 EbNo = 5; %Energy of one by over the PSD of the noise ratio (in dB)
+N_taps = 201; %number of taps of the filter
 
 beta = 0.3; %Makes the window smoother as beta increases // roll-off factor given in the specifications
 T = T_symb; %Sampling period to avoid ISI given by the f_cut (slide 29 p211) not sure about this relation !
-N = 201;
+N = N_taps;
 
 
 f_step = fs/N;
@@ -55,9 +56,9 @@ g_normed = (g/sqrt(norm));
 % figure(1);plot(f,H,'*'); grid on;title("Frequency domaine RC filter");
 % figure(2);plot(f,G,'*'); grid on;title("Frequency domaine RRC filter");hold on;
 % figure(3);plot(t,h); grid on; title("Time domain RC filter");
-% figure(4);plot(t,h_normed); grid on; title("Time domaine normed RC filter")
+figure(4);plot(t,h_normed); grid on; title("Time domaine normed RC filter")
 % figure(5);plot(t,g); grid on; title("Time domain RRC filter");
-% figure(6);plot(t,g_normed); grid on; title("Time domaine normed RRC filter")
+figure(6);plot(t,g_normed); grid on; title("Time domaine normed RRC filter")
 
 
 %% Bit Generator
@@ -137,6 +138,6 @@ bit_down_scaled_simple = bit_rx_simple(1:Nbit);
 ErrorRatio = ErrorCalculator(bit_down_scaled,bits)
 ErrorRatioSimple = ErrorCalculator(bit_down_scaled_simple,bits)
 
-figure(10);stem(abs(upsampled_symb_tx),'o');grid on; title("Upsampled Symbols");hold on; stem(abs(upsampled_symb_rx),'.');hold on; stem(abs(upsampled_symb_rx_simple),'.');legend('tx','rx','rx simple');
-figure(11);plot(symb_tx,'o');grid on; title("Symbols");hold on; plot(symb_rx,'.');plot(symb_rx_simple,'.');hold on;legend('tx','rx','rx simple');
+% figure(10);stem(abs(upsampled_symb_tx),'o');grid on; title("Upsampled Symbols");hold on; stem(abs(upsampled_symb_rx),'.');hold on; stem(abs(upsampled_symb_rx_simple),'.');legend('tx','rx','rx simple');
+% figure(11);plot(symb_tx,'o');grid on; title("Symbols");hold on; plot(symb_rx,'.');plot(symb_rx_simple,'.');hold on;legend('tx','rx','rx simple');
 

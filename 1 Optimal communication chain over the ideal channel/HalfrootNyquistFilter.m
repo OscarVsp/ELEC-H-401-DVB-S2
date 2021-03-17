@@ -1,4 +1,4 @@
-function [filter] = HalfrootNyquistFilter(fs,T_symb)
+function [filter] = HalfrootNyquistFilter(fs,T_symb,N_taps)
 
 % INPUTS:
 % - input_signal : vector of input signal 
@@ -14,7 +14,7 @@ function [filter] = HalfrootNyquistFilter(fs,T_symb)
 
 beta = 0.3; %Makes the window smoother as beta increases // roll-off factor given in the specifications
 T = T_symb; %Sampling period to avoid ISI given by the f_cut (slide 29 p211) not sure about this relation !
-N = 201; % Number of filter samples may be given by the fs
+N = N_taps; % Number of filter samples may be given by the fs
 
 f_step = fs/N;
 f_max = f_step*(N-1)/2;
