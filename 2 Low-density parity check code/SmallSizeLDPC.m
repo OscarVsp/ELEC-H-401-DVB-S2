@@ -28,7 +28,7 @@ d= [ 1 0 0 0 1]
 
 u0 = mod(d*G,2)
 %% Step 0 
-r = mod(u0+[0 0 0 1 0 0 0 0 0 0],2) %received signal with 1 bit error
+r = mod(u0+[0 0 0 0 0 0 0 0 0 0],2) %received signal with 1 bit error
 
 s1 = mod(u0*H_true',2); %syndrome 0 if no error 
 s2= mod(r*H_true',2); % different from zero if error
@@ -74,9 +74,10 @@ u = ones(1,n);              %Initialize the output value
 %% Step 0
 %We take the probability at the v nodes and we send it to the c nodes.
 for l=1:n       %For each v nodes
-    nodes_index = find(H(:,l));
-    L_q(nodes_index,l)=v_nodes(l);
+    nodes_index = find(H(:,l))
+    L_q(nodes_index,l)=v_nodes(l)
 end
+
 n_iter = 0;
 while (n_iter < max_iter && norm(mod(u*H',2))~=0)
     syndrome = mod(u*H',2)
@@ -106,10 +107,10 @@ while (n_iter < max_iter && norm(mod(u*H',2))~=0)
         u(l) = round( (v_nodes(l) + sum(L_r(nodes_index,l)) )/(length(nodes_index)+1) );        
 
         %Send value to each c nodes
-        for index=nodes_index
+        for index=nodes_index'
             temp_index = nodes_index;
             temp_index(temp_index == index) = [];
-            L_q(index,l) = u(index)-         %Don't take into account the last received prob from one c node in the new value for this node
+            L_q(nodes_index,l) = round(v_nodes(l)+sum(L_r(temp_index,l)))/(length(temp_index)+1);         %Don't take into account the last received prob from one c node in the new value for this node
         end
     end
     

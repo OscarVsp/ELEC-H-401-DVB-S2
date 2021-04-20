@@ -25,10 +25,6 @@ for block = 1:L/n
     end
     n_iter = 0;
     while (n_iter < max_iter && norm(mod(u*H',2))~=0)
-        syndrome = mod(u*H',2)
-        n_iter + 1 %compteur
-
-
         %% Step 1
         %We compute the probability to send back to each v nodes from the
         %previous probability
@@ -55,34 +51,12 @@ for block = 1:L/n
             for index=nodes_index
                 temp_index = nodes_index;
                 temp_index(temp_index == index) = [];
-                L_q(index,l) = vote - L_r(index,l);         %Don't take into account the last received prob from one c node in the new value for this node
+                L_q(nodes_index,l) = round(v_nodes(l)+sum(L_r(temp_index,l)))/(length(temp_index)+1);        %Don't take into account the last received prob from one c node in the new value for this node
             end
         end
 
         n_iter = n_iter + 1;
 
     end
-
-%     while (norm(mod(new_dr*H',2)) ~=0) && (stop_count<10) %checking if syndrome equals 0 vector
-%     stop_count =stop_count +1;
-%     syndrome = mod(new_r*H',2);
-%     for i=1:n %for each variable node
-%         check_node = H(:,i); %taking the link between check and variable nodes
-%         vote = new_r(i);
-%         count =1;%Because the received vector is taken for the majority vote
-%         for j=1:m %for each check node for this variable node
-%             if check_node(j) == 1 %decision of the check node needed
-%                 count =count+ 1;
-%                 if syndrome(j) == 1 %changing corresponding bits if check node equals 1 from syndrome
-%                     vote = vote+ mod(r(i) + 1,2);  %inversing the value because assumed to be an error
-%                 else
-%                     vote = vote + r(i);
-%                 end
-%             end
-%         end
-%         vote_result(i) = round(vote/count); %Vote
-%     end
-%     new_dr = vote_result;
-%     end
     bits(1+(block-1)*m:(block-1)*m+m) = u(m+1:end); %the last bits are the transmitted ones
 end
