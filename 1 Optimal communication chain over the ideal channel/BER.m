@@ -1,16 +1,15 @@
 clear all; clc; close all;
 %% Parameters
 
-N_average = 10; %Number of sample to send for each test
+N_average = 100; %Number of sample to send for each test
 
 Nbit = 12000;
 f_cut = 1e6; %Hz Cutoff frequency
-T_symb = 1/(2*f_cut);
-M = 16;
+M = 12;
 N_taps = 201; %number of taps of the filter
 
 M_array = [1 2 3 4 5 6 8 12 16]; %M
-N_taps_array = [3 9 15 29 51 101 201]; %N_taps
+N_taps_array = [7 9 11 13 15 29]; %N_taps
 Nbps_array = [6]; %NBPS
 EbNo_array = (1:1:30); %EbNo
 
@@ -27,7 +26,8 @@ for k = 1:length(Nbps_array)
 
             compteur = ((i-1) + (j-1)*length(EbNo_array) + (k-1)*(length(EbNo_array)*length(N_taps_array)))*(100)/(length(N_taps_array)*length(Nbps_array)*length(EbNo_array)) %Percent compteur for us
             EbNo = EbNo_array(i); %EbNo
-            fs = M*f_cut;
+            fs = 2*M*f_cut;
+            T_symb = 1/(2*(f_cut));
             BER_samples = zeros(1,N_average);
             for n = 1:N_average
                 %% Bit Generator
@@ -93,5 +93,5 @@ for k = 1:length(Nbps_array)
     ylabel('BER');
     %legend('M = 1','M = 2','M = 3','M = 4','M = 5','M = 6','M = 8','M = 12','M = 16');
     %legend('BPSK','QPSK','16QAM','64QAM');
-    legend('N = 3','N = 9','N = 15','N = 29','N = 51','N = 101','N = 201');
+    legend('N = 7','N = 9','N = 11','N = 13','N = 15','N = 29');
 end
