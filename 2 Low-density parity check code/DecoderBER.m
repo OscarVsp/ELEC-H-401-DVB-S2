@@ -6,8 +6,8 @@ addpath('../1 Optimal communication chain over the ideal channel');
 % image_tx = 'cp.png'; %Only 3x8bits images
 % [bit_tx,nbl,nbc,nbd] = ImageToBits(image_tx);
 
-N_packet = 12;
-N_bit_per_pack = 128;
+N_packet = 32;
+N_bit_per_pack = 256;
 CodeRate = 1/2;
 N_bits=N_bit_per_pack*N_packet;
 Nbps = 1;               %Nombre of bits per symbol (1 = BPSK, 2 = 4QAM, 4 = 16QAM, 6 = 64QAM)
@@ -21,7 +21,7 @@ Average = 10;
 BER_uncoded = zeros(1,length(EbNoArray));
 BER_SoftDecoded = zeros(1,length(EbNoArray));
 BER_HardDecoded = zeros(1,length(EbNoArray));
-
+H0 = makeLdpc(N_bit_per_pack, N_bit_per_pack/CodeRate,0,1,3); % Create initial parity check matrix of size 128 x 256
 
 for k=1:length(EbNoArray)
     k
@@ -46,12 +46,11 @@ for k=1:length(EbNoArray)
 
         %% Encoder
 
-        H0 = makeLdpc(N_bit_per_pack, N_bit_per_pack/CodeRate,0,1,3); % Create initial parity check matrix of size 128 x 256
-        blocks=reshape(bits_tx,N_packet,N_bit_per_pack);
+        blocks=(reshape(bits_tx,N_bit_per_pack,N_packet))';
         [checkbits, H] = makeParityChk(blocks', H0, 0);
         checkbits = (checkbits)';
         codedbits = (horzcat(checkbits,blocks));
-        codedbits_tx=(reshape(codedbits,[],1))';
+        codedbits_tx=(reshape(codedbits',[],1))';
 
 
         %% Mapping
@@ -86,25 +85,23 @@ for k=1:length(EbNoArray)
         symb_uncoded_rx = DownSampling(upsampled_symb_uncoded_rx,N_bits,Nbps,M);
 
         %% Demapping
-        %Only for the uncoded symb
+        %Only for the uncoded and hard decoder symb
         bit_uncoded_rx = demapping(real(symb_uncoded_rx)', Nbps, 'pam')';
+        bit_coded_rx_hard = demapping(real(symb_coded_rx)', Nbps, 'pam')';
 
-
+        %% Hard Decoder
+        bit_decoded_rx_hard = LDPC_hard_decoder(bit_coded_rx_hard,H,10);
+        
         %% SoftDecoder
         %Only for the coded symb
-        codedblocks = reshape(symb_coded_rx,N_packet,N_bit_per_pack/CodeRate);
-        bit_decoded_rx = zeros(N_packet,N_bit_per_pack);
-        for i = 1:N_packet
-            block = codedblocks(i,:);
-            bit_coded_rx = LDPC_soft_decoder(H,block,No/2,10);
-            bit_decoded_rx(i,:) = bit_coded_rx(1,N_bit_per_pack+1:end);
-        end
-
-        bit_decoded_rx = reshape(bit_decoded_rx,1,[]);
+        
+        
+        bit_decoded_rx_soft = LDPC_soft_decoder(symb_coded_rx,H,No/2,10);
+        
 
         BER_uncoded_temp(1,n) = ErrorCalculator(bit_uncoded_rx,bits_tx);
-        BER_SoftDecoded_temp(1,n) = ErrorCalculator(bit_decoded_rx,bits_tx);
-        BER_HardDecoded_temp(1,n) = 0;
+        BER_SoftDecoded_temp(1,n) = ErrorCalculator(bit_decoded_rx_soft,bits_tx);
+        BER_HardDecoded_temp(1,n) = ErrorCalculator(bit_decoded_rx_hard,bits_tx);
     end
     
     BER_uncoded(1,k) = mean(BER_uncoded_temp);
@@ -115,10 +112,9 @@ end
 figure;
 semilogy(EbNoArray,BER_uncoded);hold on;
 semilogy(EbNoArray,BER_SoftDecoded);hold on;
-%semilogy(EbNoArray,BER_HardDecoded);hold on;
+semilogy(EbNoArray,BER_HardDecoded);hold on;
 grid on; title('BER BPSK M=4');
-legend('Uncoded','Soft Decoded');
-%legend('Uncoded','Soft Decoded','Hard Decoded');
+legend('Uncoded','Soft Decoded','Hard Decoded');
 xlabel("E_b/N_0 [dB]");
 ylabel("BER");
 

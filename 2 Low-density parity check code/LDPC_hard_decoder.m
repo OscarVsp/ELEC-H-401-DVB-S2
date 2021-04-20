@@ -10,12 +10,13 @@ function [bits] = LDPC_hard_decoder(r,H,max_iter)
 L = length(r);
 bits = zeros(1,L*m/n);
 
+
 for block = 1:L/n
     dr = r( 1+(block-1)*n:(block-1)*n+n);%taking a n size block
     v_nodes = dr;    %Initial value of v nodes
 
     L_q = zeros(m,n);           %Initialize the value sent from v nodes to c nodes
-    u = ones(1,n);              %Initialize the output value
+    u = v_nodes;              %Initialize the output value
 
     %% Step 0
     %We take the probability at the v nodes and we send it to the c nodes.
@@ -23,8 +24,10 @@ for block = 1:L/n
         nodes_index = find(H(:,l));
         L_q(nodes_index,l)=v_nodes(l);
     end
+    
     n_iter = 0;
-    while (n_iter < max_iter && norm(mod(u*H',2))~=0)
+    syndrome = norm(mod(u*H',2));
+    while (n_iter < max_iter && syndrome~=0)
         %% Step 1
         %We compute the probability to send back to each v nodes from the
         %previous probability
@@ -46,7 +49,6 @@ for block = 1:L/n
             %Mazjority vote
             nodes_index = find(H(:,l));
             u(l) = round( (v_nodes(l) + sum(L_r(nodes_index,l)) )/(length(nodes_index)+1) );        
-
             %Send value to each c nodes
             for index=nodes_index
                 temp_index = nodes_index;
@@ -54,7 +56,7 @@ for block = 1:L/n
                 L_q(nodes_index,l) = round(v_nodes(l)+sum(L_r(temp_index,l)))/(length(temp_index)+1);        %Don't take into account the last received prob from one c node in the new value for this node
             end
         end
-
+        syndrome = norm(mod(u*H',2));
         n_iter = n_iter + 1;
 
     end
