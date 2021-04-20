@@ -1,11 +1,11 @@
-function [u] = SoftDecoder(H,r,variance,max_iter)
+function [u] = LDPC_soft_decoder(H,r,variance,max_iter)
 
 
 %% small size LDPC encoder and hard decoder
 
  
 [m n] = size(H);
-v_nodes = -2*r/variance    %Initial value of v nodes
+v_nodes = -2*r/variance;    %Initial value of v nodes
 
 L_q = zeros(m,n);           %Initialize the value sent from v nodes to c nodes
 u = ones(1,n);              %Initialize the output value
@@ -19,8 +19,8 @@ end
 
 n_iter = 0;
 while (n_iter < max_iter && norm(mod(u*H',2))~=0)
-    syndrome = norm(mod(u*H',2))
-    n_iter + 1 %compteur
+    syndrome = norm(mod(u*H',2));
+    n_iter + 1; %compteur
     
     
     %% Step 1
@@ -32,9 +32,11 @@ while (n_iter < max_iter && norm(mod(u*H',2))~=0)
         for index=nodes_index     %For each v nodes connected to this c nodes
             temp_index = nodes_index;
             temp_index(temp_index == index) = [];%Make a temp index to avoid taking into account the probability sent by this v nodes
-            K = prod(sign(L_q(l,temp_index)));  %Compute the khi factor
-            A = min(abs(L_q(l,temp_index)));  %Compute the approx alpha factor
-            L_r(l,index)=K*A;     %[Check is index works here]
+            if length(L_q(1,temp_index)) ~= 0
+                K = prod(sign(L_q(l,temp_index)));  %Compute the khi factor
+                A = min(abs(L_q(l,temp_index)));  %Compute the approx alpha factor
+                L_r(l,index)=K*A;     %[Check is index works here]
+            end
         end
     end
     
@@ -60,5 +62,6 @@ while (n_iter < max_iter && norm(mod(u*H',2))~=0)
     n_iter = n_iter + 1;
 
 end
-n_iter
+syndrome = norm(mod(u*H',2));
+n_iter;
 
