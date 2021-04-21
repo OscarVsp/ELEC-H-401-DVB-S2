@@ -55,6 +55,7 @@ for block = 1:L/n
                 temp_index(temp_index == index) = [];
                 L_q(nodes_index,l) = round(v_nodes(l)+sum(L_r(temp_index,l)))/(length(temp_index)+1);        %Don't take into account the last received prob from one c node in the new value for this node
             end
+            v_nodes(l) = u(l);
         end
         syndrome = norm(mod(u*H',2));
         n_iter = n_iter + 1;
