@@ -53,7 +53,7 @@ for block = 1:L/n
             for index=nodes_index
                 temp_index = nodes_index;
                 temp_index(temp_index == index) = [];
-                L_q(nodes_index,l) = round(v_nodes(l)+sum(L_r(temp_index,l)))/(length(temp_index)+1);        %Don't take into account the last received prob from one c node in the new value for this node
+                L_q(nodes_index,l) = round( (v_nodes(l)+sum(L_r(temp_index,l)))/(length(temp_index)+1) );        %Don't take into account the last received prob from one c node in the new value for this node
             end
             v_nodes(l) = u(l);
         end

@@ -3,9 +3,6 @@ addpath('../1 Optimal communication chain over the ideal channel');
 
 %% Parameters
 
-% image_tx = 'cp.png'; %Only 3x8bits images
-% [bit_tx,nbl,nbc,nbd] = ImageToBits(image_tx);
-
 N_packet = 16;
 N_bit_per_pack = 256;
 CodeRate = 1/2;
@@ -17,7 +14,7 @@ fs = 2*M*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut) I
 T_symb = 1/(2*(fs/10));
 EbNoArray = 1:20; %Energy of one by over the PSD of the noise ratio (in dB)
 N_taps = 201; %number of taps of the filter
-Average = 50;
+Average = 15;
 BER_uncoded = zeros(1,length(EbNoArray));
 BER_SoftDecoded = zeros(1,length(EbNoArray));
 BER_HardDecoded = zeros(1,length(EbNoArray));
