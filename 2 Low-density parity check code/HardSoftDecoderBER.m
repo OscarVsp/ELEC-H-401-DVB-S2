@@ -3,8 +3,8 @@ addpath('../1 Optimal communication chain over the ideal channel');
 
 %% Parameters
 
-N_packet = 16;
-N_bit_per_pack = 256;
+N_packet = 48;
+N_bit_per_pack = 128;
 CodeRate = 1/2;
 N_bits=N_bit_per_pack*N_packet;
 Nbps = 1;               %Nombre of bits per symbol (1 = BPSK, 2 = 4QAM, 4 = 16QAM, 6 = 64QAM)
@@ -14,7 +14,7 @@ fs = 2*M*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut) I
 T_symb = 1/(2*(fs/10));
 EbNoArray = 1:20; %Energy of one by over the PSD of the noise ratio (in dB)
 N_taps = 201; %number of taps of the filter
-Average = 15;
+Average = 20;
 BER_uncoded = zeros(1,length(EbNoArray));
 BER_SoftDecoded = zeros(1,length(EbNoArray));
 BER_HardDecoded = zeros(1,length(EbNoArray));

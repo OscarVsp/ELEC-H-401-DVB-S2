@@ -3,18 +3,18 @@ addpath('../1 Optimal communication chain over the ideal channel');
 
 %% Parameters
 
-N_packet = 12;
+N_packet = 8;
 N_bit_per_pack = 128;
 CodeRate = 1/2;
 N_bits=N_bit_per_pack*N_packet;
-Nbps = 6;               %Nombre of bits per symbol (1 = BPSK, 2 = 4QAM, 4 = 16QAM, 6 = 64QAM)
+Nbps = 4;               %Nombre of bits per symbol (1 = BPSK, 2 = 4QAM, 4 = 16QAM, 6 = 64QAM)
 M = 4;       %Upsampling factor
 f_cut = 1e6; %Hz Cutoff frequency
 fs = 2*M*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut) Its the freq on which the conv of the filter and the signal will be done --> has to be the same !!!
 T_symb = 1/(2*(fs/10));
-EbNoArray = 1:2:20; %Energy of one by over the PSD of the noise ratio (in dB)
+EbNoArray = 1:3:20; %Energy of one by over the PSD of the noise ratio (in dB)
 N_taps = 201; %number of taps of the filter
-Average = 8;
+Average = 10;
 max_iter_array = [1 2 4 8];
 BER_uncoded = zeros(1,length(EbNoArray));
 BER_HardDecoded_1 = zeros(1,length(EbNoArray));
@@ -68,12 +68,12 @@ for k=1:length(EbNoArray)
 
         %% Transmitter Filter
 
-%         filter = HalfrootNyquistFilter(fs,T_symb,N_taps); 
-%         signal_coded_tx = conv(upsampled_symb_coded_tx,filter);
-%         signal_uncoded_tx = conv(upsampled_symb_uncoded_tx,filter);
-        
-        signal_coded_tx = upsampled_symb_coded_tx;
-        signal_uncoded_tx = upsampled_symb_uncoded_tx;
+        filter = HalfrootNyquistFilter(fs,T_symb,N_taps); 
+        signal_coded_tx = conv(upsampled_symb_coded_tx,filter);
+        signal_uncoded_tx = conv(upsampled_symb_uncoded_tx,filter);
+%         
+%         signal_coded_tx = upsampled_symb_coded_tx;
+%         signal_uncoded_tx = upsampled_symb_uncoded_tx;
 
         
         %% Transmission Channel
@@ -81,12 +81,12 @@ for k=1:length(EbNoArray)
         signal_uncoded_rx = NoiseAddition(signal_uncoded_tx,EbNo,fs,N_bits); 
 
         %% Receiver Filter
-%         matched_filter = flip(filter); 
-%         upsampled_symb_coded_rx = conv(signal_coded_rx,matched_filter,'valid'); 
-%         upsampled_symb_uncoded_rx = conv(signal_uncoded_rx,matched_filter,'valid'); 
-        
-        upsampled_symb_coded_rx = signal_coded_rx;
-        upsampled_symb_uncoded_rx = signal_uncoded_rx;
+        matched_filter = flip(filter); 
+        upsampled_symb_coded_rx = conv(signal_coded_rx,matched_filter,'valid'); 
+        upsampled_symb_uncoded_rx = conv(signal_uncoded_rx,matched_filter,'valid'); 
+%         
+%         upsampled_symb_coded_rx = signal_coded_rx;
+%         upsampled_symb_uncoded_rx = signal_uncoded_rx;
 
        
         %% Downsampling

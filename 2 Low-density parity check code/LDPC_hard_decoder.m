@@ -21,10 +21,9 @@ for block = 1:L/n
     %% Step 0
     %We take the probability at the v nodes and we send it to the c nodes.
     for l=1:n       %For each v nodes
-        nodes_index = find(H(:,l));
-        L_q(nodes_index,l)=v_nodes(l);
+    nodes_index = find(H(:,l));
+    L_q(nodes_index,l)=v_nodes(l);
     end
-    
     n_iter = 0;
     syndrome = norm(mod(u*H',2));
     while (n_iter < max_iter && syndrome~=0)
@@ -34,11 +33,13 @@ for block = 1:L/n
         L_r = zeros(m,n);   %Reset L_r
         for l=1:m          %For each c nodes
             nodes_index = find(H(l,:));
-            for index=nodes_index     %For each v nodes connected to this c nodes
+            for j=1:length(nodes_index)
+                index = nodes_index(j);
                 temp_index = nodes_index;
                 temp_index(temp_index == index) = [];%Make a temp index to avoid taking into account the probability sent by this v nodes 
-                L_r(l,index)=mod(sum(L_q(l,temp_index)),2);     
+                L_r(l,index)=mod(sum(L_q(l,temp_index)),2);    
             end
+
         end
 
         %% Step 2
@@ -48,18 +49,31 @@ for block = 1:L/n
         for l=1:n       %For each v node
             %Mazjority vote
             nodes_index = find(H(:,l));
-            u(l) = round( (v_nodes(l) + sum(L_r(nodes_index,l)) )/(length(nodes_index)+1) );        
+            vote_u = (v_nodes(l) + sum(L_r(nodes_index,l)) )/(length(nodes_index)+1); 
+            if vote_u>0.5
+                u(l) = 1;
+            else 
+                u(l) = 0;
+            end
+
             %Send value to each c nodes
-            for index=nodes_index
+            for j=1:length(nodes_index)
+                index = nodes_index(j);
                 temp_index = nodes_index;
                 temp_index(temp_index == index) = [];
-                L_q(nodes_index,l) = round( (v_nodes(l)+sum(L_r(temp_index,l)))/(length(temp_index)+1) );        %Don't take into account the last received prob from one c node in the new value for this node
+                vote_L_q = (v_nodes(l)+sum(L_r(temp_index,l)))/(length(temp_index)+1);
+                if vote_L_q > 0.5
+                    L_q(index,l) = 1;
+                else
+                    L_q(index,l) = 0;
+                end
+
+                %Don't take into account the last received prob from one c node in the new value for this node  
             end
-            v_nodes(l) = u(l);
+            %v_nodes(l) = u(l);  %Not Sure
         end
         syndrome = norm(mod(u*H',2));
         n_iter = n_iter + 1;
-
     end
     bits(1+(block-1)*m:(block-1)*m+m) = u(m+1:end); %the last bits are the transmitted ones
 end

@@ -44,7 +44,8 @@ for block = 1:L/n
         L_r = zeros(m,n);   %Reset L_r
         for l=1:m          %For each c nodes
             nodes_index = find(H(l,:));     
-            for index=nodes_index     %For each v nodes connected to this c nodes
+            for j=1:length(nodes_index)
+                index = nodes_index(j);     %For each v nodes connected to this c nodes
                 temp_index = nodes_index;
                 temp_index(temp_index == index) = [];%Make a temp index to avoid taking into account the probability sent by this v nodes
                 if length(L_q(1,temp_index)) ~= 0
@@ -69,7 +70,8 @@ for block = 1:L/n
                 u(l)=0;
             end
             %Send probability to each c nodes
-            for index=nodes_index
+            for j=1:length(nodes_index)
+                index = nodes_index(j);
                 L_q(index,l) = vote - L_r(index,l);         %Don't take into account the last received prob from one c node in the new prob for this node
             end
         end
