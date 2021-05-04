@@ -3,17 +3,19 @@ clear all; clc; close all;
 
 %% Parameters
 
-% image_tx = 'cp.png'; %Only 3x8bits images
-% [bit_tx,nbl,nbc,nbd] = ImageToBits(image_tx);
 
-Nbit = 6000;
-Nbps = 1;               %Nombre of bits per symbol (1 = BPSK, 2 = 4QAM, 4 = 16QAM, 6 = 64QAM)
-M = 4;       %Upsampling factor
+Nbit = 600;
+Nbps = 4;    %Nombre of bits per symbol (1 = BPSK, 2 = 4QAM, 4 = 16QAM, 6 = 64QAM)
 f_cut = 1e6; %Hz Cutoff frequency
-fs = 2*M*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut) Its the freq on which the conv of the filter and the signal will be done --> has to be the same !!!
-T_symb = 1/(2*(fs/10));
-EbNo = 5; %Energy of one by over the PSD of the noise ratio (in dB)
-N_taps = 201; %number of taps of the filter
+fsymb = 2*f_cut; 
+T_symb = 1/fsymb;
+fsamp = 8*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut) Its the freq on which the conv of the filter and the signal will be done --> has to be the same !!!
+M = 24; %Upsampling factor (link to fsamp/fsymb)
+EbNo = 8; %Energy of one by over the PSD of the noise ratio (in dB)
+N_taps = 101; %number of taps of the filter
+beta = 0.3; %Makes the window smoother as beta increases // roll-off factor given in the specifications
+
+
 %% Bit Generator
 
 bits = randi(2,1,Nbit)-1;

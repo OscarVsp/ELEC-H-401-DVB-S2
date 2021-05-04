@@ -2,61 +2,75 @@ clear all; clc; close all;
 %% Parameters
 
 N_average = 100; %Number of sample to send for each test
-
-Nbit = 12000;
+Nbit = 20000;
+Nbps = 4;    %Nombre of bits per symbol (1 = BPSK, 2 = 4QAM, 4 = 16QAM, 6 = 64QAM)
 f_cut = 1e6; %Hz Cutoff frequency
-M = 12;
-N_taps = 201; %number of taps of the filter
+fsymb = 2*f_cut;
+T_symb = 1/fsymb;
+fsamp = 16*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut) Its the freq on which the conv of the filter and the signal will be done --> has to be the same !!!
+M = 24; %Upsampling factor (au moins plus grand que 4)
+EbNo = 8; %Energy of one by over the PSD of the noise ratio (in dB)
+N_taps = 101; %number of taps of the filter
+beta = 0.3; %Makes the window smoother as beta increases // roll-off factor given in the specifications
 
-M_array = [1 2 3 4 5 6 8 12 16]; %M
-N_taps_array = [7 9 11 13 15 29]; %N_taps
-Nbps_array = [6]; %NBPS
-EbNo_array = (1:1:30); %EbNo
+%% BER parameters arrays
 
-for k = 1:length(Nbps_array)
+M_array = [4 8 12 16 20 24]; %M
+Nbps_array = [1 2 4 6]; %NBPS
+EbNo_array = (1:1:25); %EbNo
+
+%% Loops
+
+for k = 1:length(M_array)
     
-    Nbps = Nbps_array(k);
+    M = M_array(k);
     figure(k);
     BER_array = zeros(4,length(EbNo_array));
-    for j = 1:length(N_taps_array)
+    BER_array_simple = zeros(4,length(EbNo_array));
+    for j = 1:length(Nbps_array)
 
-        N_taps = N_taps_array(j);
+        Nbps = Nbps_array(j);
 
         for i = 1:length(EbNo_array)
 
-            compteur = ((i-1) + (j-1)*length(EbNo_array) + (k-1)*(length(EbNo_array)*length(N_taps_array)))*(100)/(length(N_taps_array)*length(Nbps_array)*length(EbNo_array)) %Percent compteur for us
+            compteur = ((i-1) + (j-1)*length(EbNo_array) + (k-1)*(length(EbNo_array)*length(Nbps_array)))*(100)/(length(Nbps_array)*length(M_array)*length(EbNo_array)) %Percent compteur for us
             EbNo = EbNo_array(i); %EbNo
-            fs = 2*M*f_cut;
-            T_symb = 1/(2*(f_cut));
             BER_samples = zeros(1,N_average);
+            BER_samples_simple = zeros(1,N_average);
             for n = 1:N_average
                 %% Bit Generator
-
-                bit_tx = randi(2,1,Nbit)-1; 
-                Nbit = length(bit_tx);
+ 
+                bits = randi(2,1,Nbit)-1;
+                check_mult = mod(Nbit,Nbps);
+                if check_mult == 0
+                    bits_tx = bits;
+                else
+                    bits_tx = [bits  zeros(1,Nbps - check_mult)];
+                end
+                Nbit_tx = length(bits_tx);
+                
 
                 %% Mapping
                 %Maps the bits into desired symbols in the complex plane 
                 if (Nbps > 1)
-                    symb_tx = mapping(bit_tx', Nbps, 'qam')';
+                    symb_tx = mapping(bits_tx', Nbps, 'qam')';
                 else
-                    symb_tx = mapping(bit_tx', Nbps, 'pam')';
+                    symb_tx = mapping(bits_tx', Nbps, 'pam')';
                 end
 
                 %% Upsampling
 
-                upsampled_symb_tx = UpSampling(symb_tx,Nbit,Nbps,M);
+                upsampled_symb_tx = UpSampling(symb_tx,Nbit_tx,Nbps,M);
 
 
                 %% Transmitter Filter
 
-                filter = HalfrootNyquistFilter(fs,T_symb,N_taps); %So we compute de filter only 1 time as this is the same
+                filter = HalfrootNyquistFilter(fsamp,T_symb,N_taps); %So we compute de filter only 1 time as this is the same
                 signal_tx = conv(upsampled_symb_tx,filter);%Convolution of the signal with the filter
-
 
                 %% Transmission Channel
 
-                signal_rx = NoiseAddition(signal_tx,EbNo,fs,Nbit);      %With Noise
+                signal_rx = NoiseAddition(signal_tx,EbNo,fsamp,Nbit_tx);      %With Noise
 
 
                 %% Receiver Filter
@@ -67,31 +81,30 @@ for k = 1:length(Nbps_array)
 
                 %% Downsampling
 
-                symb_rx = DownSampling(upsampled_symb_rx,Nbit,Nbps,M);
-
+                symb_rx = DownSampling(upsampled_symb_rx,Nbit_tx,Nbps,M);
+        
                 %% Demapping
 
                 if (Nbps > 1)
-                    bit_rx = demapping(symb_rx', Nbps, 'qam')';
+                    bits_rx = demapping(symb_rx', Nbps, 'qam')';
                 else
-                    bit_rx = demapping(real(symb_rx)', Nbps, 'pam')';
+                    bits_rx = demapping(real(symb_rx)', Nbps, 'pam')';
                 end
+                bits_down_scaled = bits_rx(1:Nbit);
                 %% Bits check
 
-
-                BER_samples(n) = ErrorCalculator(bit_rx,bit_tx);
+                BER_samples(n) = ErrorCalculator(bits_rx,bits_tx);
             end
-            BER_array(j,i) = mean(BER_samples); 
+            BER_array(j,i) = mean(BER_samples);
         end
-        semilogy(EbNo_array,BER_array(j,:));grid on;
+        semilogy(EbNo_array,BER_array(j,:),'-*');grid on;
         hold on;
     end
 
-    title("BER fonction of Eb/No M =" + int2str(M)+", Nbps =" + int2str(Nbps)+", Nbit ="+int2str(Nbit)+", N average ="+int2str(N_average));
-    %title("BER fonction of Eb/No M =" + int2str(M)+", Nbit ="+int2str(Nbit)+", N average ="+int2str(N_average));
+    title("BER fonction of E_b/N_o M =" + int2str(M)+", Nbit ="+int2str(Nbit)+", N average ="+int2str(N_average));
+    %title("BER fonction of E_b/N_o Nbps =" + int2str(Nbps)+", Nbit ="+int2str(Nbit)+", N average ="+int2str(N_average));
     xlabel('E_b/N_o (dB)');
     ylabel('BER');
-    %legend('M = 1','M = 2','M = 3','M = 4','M = 5','M = 6','M = 8','M = 12','M = 16');
-    %legend('BPSK','QPSK','16QAM','64QAM');
-    legend('N = 7','N = 9','N = 11','N = 13','N = 15','N = 29');
+    legend('BPSK','QPSK','16-QAM','64-QAM');
+    %legend('M = 4','M = 8','M = 12','M = 16','M = 20','M = 24');
 end
