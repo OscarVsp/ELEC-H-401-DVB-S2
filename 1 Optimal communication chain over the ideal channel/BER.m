@@ -1,39 +1,41 @@
 clear all; clc; close all;
 %% Parameters
 
-N_average = 100; %Number of sample to send for each test
-Nbit = 20000;
+N_average = 50; %Number of sample to send for each test
+Nbit = 40000;
 Nbps = 4;    %Nombre of bits per symbol (1 = BPSK, 2 = 4QAM, 4 = 16QAM, 6 = 64QAM)
 f_cut = 1e6; %Hz Cutoff frequency
 fsymb = 2*f_cut;
 T_symb = 1/fsymb;
 fsamp = 16*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut) Its the freq on which the conv of the filter and the signal will be done --> has to be the same !!!
-M = 24; %Upsampling factor (au moins plus grand que 4)
+M = 32; %Upsampling factor (au moins plus grand que 4)
 EbNo = 8; %Energy of one by over the PSD of the noise ratio (in dB)
 N_taps = 101; %number of taps of the filter
 beta = 0.3; %Makes the window smoother as beta increases // roll-off factor given in the specifications
 
 %% BER parameters arrays
 
-M_array = [4 8 12 16 20 24]; %M
+M_array = [4 8 12 16 20 24 28 32 40 48]; %M
+N_taps_array = [11 31 61 101 151 201]; %M
 Nbps_array = [1 2 4 6]; %NBPS
 EbNo_array = (1:1:25); %EbNo
 
 %% Loops
 
-for k = 1:length(M_array)
+for k = 1:length(Nbps_array)
     
-    M = M_array(k);
+    Nbps = Nbps_array(k);
     figure(k);
     BER_array = zeros(4,length(EbNo_array));
     BER_array_simple = zeros(4,length(EbNo_array));
-    for j = 1:length(Nbps_array)
+        
+    for j = 1:length(N_taps_array)
 
-        Nbps = Nbps_array(j);
+        N_taps = N_taps_array(j);6
 
         for i = 1:length(EbNo_array)
 
-            compteur = ((i-1) + (j-1)*length(EbNo_array) + (k-1)*(length(EbNo_array)*length(Nbps_array)))*(100)/(length(Nbps_array)*length(M_array)*length(EbNo_array)) %Percent compteur for us
+            compteur = ((i-1) + (j-1)*length(EbNo_array) + (k-1)*(length(EbNo_array)*length(N_taps_array)))*(100)/(length(Nbps_array)*length(N_taps_array)*length(EbNo_array)) %Percent compteur for us
             EbNo = EbNo_array(i); %EbNo
             BER_samples = zeros(1,N_average);
             BER_samples_simple = zeros(1,N_average);
@@ -101,10 +103,12 @@ for k = 1:length(M_array)
         hold on;
     end
 
-    title("BER fonction of E_b/N_o M =" + int2str(M)+", Nbit ="+int2str(Nbit)+", N average ="+int2str(N_average));
-    %title("BER fonction of E_b/N_o Nbps =" + int2str(Nbps)+", Nbit ="+int2str(Nbit)+", N average ="+int2str(N_average));
+%     title("BER fonction of E_b/N_o M =" + int2str(M)+", Nbit ="+int2str(Nbit)+", N average ="+int2str(N_average));
+%     title("BER fonction of E_b/N_o Nbps =" + int2str(Nbps)+", Nbit ="+int2str(Nbit)+", N average ="+int2str(N_average));
+    title("BER fonction of E_b/N_o M =" + int2str(M)+", Nbps =" + int2str(Nbps)+", Nbit ="+int2str(Nbit)+", N average ="+int2str(N_average));
     xlabel('E_b/N_o (dB)');
     ylabel('BER');
-    legend('BPSK','QPSK','16-QAM','64-QAM');
-    %legend('M = 4','M = 8','M = 12','M = 16','M = 20','M = 24');
+%     legend('BPSK','QPSK','16-QAM','64-QAM');
+%     legend('M = 4','M = 8','M = 12','M = 16','M = 20','M = 24','M = 28','M = 32','M = 40','M = 48');
+    legend('#taps = 11','#taps = 21','#taps = 61','#taps = 101','#taps = 151','#taps = 201');
 end
