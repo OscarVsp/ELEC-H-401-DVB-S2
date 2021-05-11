@@ -1,4 +1,4 @@
-function [bits] = LDPC_hard_decoder(r,H,max_iter)
+function [bits] = LDPC_hard_decoder_test(r,H,max_iter)
 % Hard decoder for the LDPC algorithm
 % r : noisy received bits 
 % H : parity check matrix
@@ -54,6 +54,15 @@ for block = 1:L/n
             vote_u = (v_nodes(l) + sum(L_r(nodes_index,l)) )/(length(nodes_index)+1); 
             u(l) = vote_u > 0.5;
 			v_nodes(l) = u(l);
+			%Send value to each c nodes
+			%%%We have indeed to do this for soft, but not for hard decoding !!!%%%
+            for j=1:length(nodes_index)
+                temp_index = nodes_index;
+				temp_index(j) = [];
+                vote_L_q = (v_nodes(l)+sum(L_r(temp_index,l)))/(length(temp_index)+1);
+				L_q(nodes_index(j),l) = vote_L_q > 0.5;
+                %Don't take into account the last received prob from one c node in the new value for this node  
+            end
 		end
         syndrome = norm(u*H');
         n_iter = n_iter + 1;
