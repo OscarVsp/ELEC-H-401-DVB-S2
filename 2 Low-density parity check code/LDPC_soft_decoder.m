@@ -32,7 +32,7 @@ for block = 1:L/n
     end
 
     n_iter = 0;
-    syndrome = norm(mod(u*H',2));
+    syndrome = norm(u*H');
     while (n_iter < max_iter && syndrome~=0)
 
         n_iter + 1; %compteur
@@ -45,13 +45,12 @@ for block = 1:L/n
         for l=1:m          %For each c nodes
             nodes_index = find(H(l,:));     
             for j=1:length(nodes_index)
-                index = nodes_index(j);     %For each v nodes connected to this c nodes
                 temp_index = nodes_index;
-                temp_index(temp_index == index) = [];%Make a temp index to avoid taking into account the probability sent by this v nodes
-                if length(L_q(1,temp_index)) ~= 0
+                temp_index(j) = [];%Make a temp index to avoid taking into account the probability sent by this v nodes
+                if length(L_q(1,temp_index)) ~= 0 %%%Needed ?? %%%
                     K = prod(sign(L_q(l,temp_index)));  %Compute the khi factor
                     A = min(abs(L_q(l,temp_index)));  %Compute the approx alpha factor
-                    L_r(l,index)=K*A;     %[Check is index works here]
+                    L_r(l,nodes_index(j))=K*A;     %[Check is index works here]
                 end
             end
         end
@@ -63,19 +62,14 @@ for block = 1:L/n
         for l=1:n       %For each v node
             %Mazjority vote
             nodes_index = find(H(:,l));
-            vote = v_nodes(l) + sum(L_r(nodes_index,l));        
-            if vote<0
-                u(l)=1;
-            else
-                u(l)=0;
-            end
+            vote = v_nodes(l) + sum(L_r(nodes_index,l)); 
+			u(l) = vote < 0;
             %Send probability to each c nodes
             for j=1:length(nodes_index)
-                index = nodes_index(j);
-                L_q(index,l) = vote - L_r(index,l);         %Don't take into account the last received prob from one c node in the new prob for this node
+                L_q(nodes_index(j),l) = vote - L_r(nodes_index(j),l);         %Don't take into account the last received prob from one c node in the new prob for this node
             end
         end
-        syndrome = norm(mod(u*H',2));
+        syndrome = norm(u*H');
         n_iter = n_iter + 1;
 
     end
