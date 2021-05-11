@@ -18,15 +18,15 @@ N_taps = 101; %number of taps of the filter
 beta = 0.3; %Makes the window smoother as beta increases // roll-off factor given in the specifications
 
 
-EbNoArray = -2:1:15; %Energy of one by over the PSD of the noise ratio (in dB)
-Average = 50;
+EbNoArray = -2:0.5:20; %Energy of one by over the PSD of the noise ratio (in dB)
+Average = 100;
 BER_uncoded = zeros(1,length(EbNoArray));
 BER_SoftDecoded = zeros(1,length(EbNoArray));
 BER_HardDecoded = zeros(1,length(EbNoArray));
 H0 = makeLdpc(N_bit_per_pack, N_bit_per_pack/CodeRate,0,1,3); % Create initial parity check matrix of size 128 x 256
 
 for k=1:length(EbNoArray)
-    100*(k-1)/length(EbNoArray)
+    k
     EbNo=EbNoArray(k);
     
     BER_uncoded_temp = zeros(1,length(Average));
