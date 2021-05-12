@@ -18,7 +18,7 @@ N_taps = 101; %number of taps of the filter
 beta = 0.3; %Makes the window smoother as beta increases // roll-off factor given in the specifications
 
 
-EbNoArray = -2:1:15; %Energy of one by over the PSD of the noise ratio (in dB)
+EbNoArray = -4:1:15; %Energy of one by over the PSD of the noise ratio (in dB)
 Average = 100;
 BER_uncoded = zeros(1,length(EbNoArray));
 BER_SoftDecoded = zeros(1,length(EbNoArray));
@@ -62,7 +62,7 @@ for k=1:length(EbNoArray)
 
         %% Upsampling
 
-        upsampled_symb_coded_tx = UpSampling(symb_coded_tx,N_bits*2,Nbps,M);
+        upsampled_symb_coded_tx = UpSampling(symb_coded_tx,N_bits/CodeRate,Nbps,M);
         upsampled_symb_uncoded_tx = UpSampling(symb_uncoded_tx,N_bits,Nbps,M);
 
         %% Transmitter Filter
@@ -83,7 +83,7 @@ for k=1:length(EbNoArray)
 
         %% Downsampling
 
-        symb_coded_rx = DownSampling(upsampled_symb_coded_rx,N_bits*2,Nbps,M);
+        symb_coded_rx = DownSampling(upsampled_symb_coded_rx,N_bits/CodeRate,Nbps,M);
         symb_uncoded_rx = DownSampling(upsampled_symb_uncoded_rx,N_bits,Nbps,M);
 
         %% Demapping
@@ -100,9 +100,10 @@ for k=1:length(EbNoArray)
         %Only for the coded symb
             
         bit_decoded_rx_soft = LDPC_soft_decoder(symb_coded_rx,H,No/2,10);
+        bit_decoded_rx_soft_down_scaled = bit_decoded_rx_soft(1:N_bits);
         
         BER_uncoded_temp(1,n) = ErrorCalculator(bit_uncoded_down_scaled,bits_tx);
-        BER_SoftDecoded_temp(1,n) = ErrorCalculator(bit_decoded_rx_soft,bits_tx);
+        BER_SoftDecoded_temp(1,n) = ErrorCalculator(bit_decoded_rx_soft_down_scaled,bits_tx);
         BER_HardDecoded_temp(1,n) = ErrorCalculator(bit_decoded_rx_hard,bits_tx);
     end
     

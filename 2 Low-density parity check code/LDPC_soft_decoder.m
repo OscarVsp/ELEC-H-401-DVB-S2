@@ -71,7 +71,7 @@ for block = 1:L/n
                 u(l) = vote < 0;
                 %Send probability to each c nodes
                 for j=1:length(nodes_index)
-                    L_q(nodes_index(j),l) = vote - L_r(nodes_index(j),l);         %Don't take into account the last received prob from one c node in the new prob for this node
+                    L_q(nodes_index(j),l) = (vote - L_r(nodes_index(j),l)<0);         %Don't take into account the last received prob from one c node in the new prob for this node
                 end
             end
             syndrome = norm(mod(u*H',2));
