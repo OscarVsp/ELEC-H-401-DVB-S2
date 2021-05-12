@@ -3,7 +3,7 @@ addpath('../1 Optimal communication chain over the ideal channel');
 
 %% Parameters
 
-N_packet = 96;
+N_packet = 192;
 N_bit_per_pack = 128;
 CodeRate = 1/2;
 N_bits=N_bit_per_pack*N_packet;
@@ -12,14 +12,14 @@ f_cut = 1e6; %Hz Cutoff frequency
 fsymb = 2*f_cut; 
 T_symb = 1/fsymb;
 fsamp = 16*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut) Its the freq on which the conv of the filter and the signal will be done --> has to be the same !!!
-M = 8; %Upsampling factor (link to fsamp/fsymb)
+M = 24; %Upsampling factor (link to fsamp/fsymb)
 EbNo = 8; %Energy of one by over the PSD of the noise ratio (in dB)
 N_taps = 101; %number of taps of the filter
 beta = 0.3; %Makes the window smoother as beta increases // roll-off factor given in the specifications
 
 
 EbNoArray = -2:1:15; %Energy of one by over the PSD of the noise ratio (in dB)
-Average = 50;
+Average = 100;
 BER_uncoded = zeros(1,length(EbNoArray));
 BER_SoftDecoded = zeros(1,length(EbNoArray));
 BER_HardDecoded = zeros(1,length(EbNoArray));
@@ -44,7 +44,7 @@ for k=1:length(EbNoArray)
         else
             bits_tx = [bits  zeros(1,Nbps - check_mult)];
         end
-
+        Nbit_tx = length(bits_tx);
 
         %% Encoder
 
@@ -72,8 +72,8 @@ for k=1:length(EbNoArray)
         signal_uncoded_tx = conv(upsampled_symb_uncoded_tx,filter);
 
         %% Transmission Channel
-        signal_coded_rx = NoiseAddition(signal_coded_tx,EbNo,fsamp,N_bits);    
-        [signal_uncoded_rx,No] = NoiseAddition(signal_uncoded_tx,EbNo,fsamp,N_bits/CodeRate); 
+        [signal_coded_rx,No] = NoiseAddition(signal_coded_tx,EbNo,fsamp,N_bits/CodeRate);    
+        signal_uncoded_rx = NoiseAddition(signal_uncoded_tx,EbNo,fsamp,N_bits); 
 
         %% Receiver Filter
         matched_filter = flip(filter); 
@@ -89,17 +89,19 @@ for k=1:length(EbNoArray)
         %% Demapping
         %Only for the uncoded and hard decoder symb
         bit_uncoded_rx = demapping(real(symb_uncoded_rx)', Nbps, 'pam')';
+        bit_uncoded_down_scaled = bit_uncoded_rx(1:N_bits);
         bit_coded_rx_hard = demapping(real(symb_coded_rx)', Nbps, 'pam')';
+        bits_coded_hard_down_scaled = bit_coded_rx_hard(1:N_bits/CodeRate);
 
         %% Hard Decoder
-        bit_decoded_rx_hard = LDPC_hard_decoder(bit_coded_rx_hard,H,10);
+        bit_decoded_rx_hard = LDPC_hard_decoder(bits_coded_hard_down_scaled,H,10);
         
         %% SoftDecoder
         %Only for the coded symb
             
         bit_decoded_rx_soft = LDPC_soft_decoder(symb_coded_rx,H,No/2,10);
         
-        BER_uncoded_temp(1,n) = ErrorCalculator(bit_uncoded_rx,bits_tx);
+        BER_uncoded_temp(1,n) = ErrorCalculator(bit_uncoded_down_scaled,bits_tx);
         BER_SoftDecoded_temp(1,n) = ErrorCalculator(bit_decoded_rx_soft,bits_tx);
         BER_HardDecoded_temp(1,n) = ErrorCalculator(bit_decoded_rx_hard,bits_tx);
     end
@@ -113,7 +115,7 @@ figure;
 semilogy(EbNoArray,BER_uncoded,'-*');hold on;
 semilogy(EbNoArray,BER_SoftDecoded,'-*');hold on;
 semilogy(EbNoArray,BER_HardDecoded,'-*');hold on;
-grid on; title('BER BPSK M=24');
+grid on; title('BER BPSK');
 legend('Uncoded','Soft Decoded','Hard Decoded');
 xlabel("E_b/N_0 [dB]");
 ylabel("BER");

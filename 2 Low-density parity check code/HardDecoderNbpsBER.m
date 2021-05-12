@@ -3,7 +3,7 @@ addpath('../1 Optimal communication chain over the ideal channel');
 
 %% Parameters
 
-N_packet = 96;
+N_packet = 96*2;
 N_bit_per_pack = 128;
 CodeRate = 1/2;
 N_bits=N_bit_per_pack*N_packet;
@@ -12,7 +12,7 @@ f_cut = 1e6; %Hz Cutoff frequency
 fsymb = 2*f_cut; 
 T_symb = 1/fsymb;
 fsamp = 16*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut) Its the freq on which the conv of the filter and the signal will be done --> has to be the same !!!
-M = 16; %Upsampling factor (link to fsamp/fsymb)
+M = 24; %Upsampling factor (link to fsamp/fsymb)
 EbNo = 8; %Energy of one by over the PSD of the noise ratio (in dB)
 N_taps = 101; %number of taps of the filter
 beta = 0.3; %Makes the window smoother as beta increases // roll-off factor given in the specifications
@@ -120,16 +120,16 @@ for m=[1 2 4 6]
 
 
             %% Hard Decoder
-            bit_decoded_rx_hard_1 = LDPC_hard_decoder_test(bits_coded_hard_down_scaled,H,1);
+            bit_decoded_rx_hard_1 = LDPC_hard_decoder(bits_coded_hard_down_scaled,H,1);
             BER_HardDecoded_1_temp(1,n) = ErrorCalculator(bit_decoded_rx_hard_1,bits);
 
-            bit_decoded_rx_hard_2 = LDPC_hard_decoder_test(bits_coded_hard_down_scaled,H,2);
+            bit_decoded_rx_hard_2 = LDPC_hard_decoder(bits_coded_hard_down_scaled,H,2);
             BER_HardDecoded_2_temp(1,n) = ErrorCalculator(bit_decoded_rx_hard_2,bits);
 
-            bit_decoded_rx_hard_4 = LDPC_hard_decoder_test(bits_coded_hard_down_scaled,H,4);
+            bit_decoded_rx_hard_4 = LDPC_hard_decoder(bits_coded_hard_down_scaled,H,4);
             BER_HardDecoded_4_temp(1,n) = ErrorCalculator(bit_decoded_rx_hard_4,bits);
 
-            bit_decoded_rx_hard_8 = LDPC_hard_decoder_test(bits_coded_hard_down_scaled,H,8);
+            bit_decoded_rx_hard_8 = LDPC_hard_decoder(bits_coded_hard_down_scaled,H,8);
             BER_HardDecoded_8_temp(1,n) = ErrorCalculator(bit_decoded_rx_hard_8,bits);
 
 
