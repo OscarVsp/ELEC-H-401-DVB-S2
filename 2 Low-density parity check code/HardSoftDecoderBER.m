@@ -3,7 +3,7 @@ addpath('../1 Optimal communication chain over the ideal channel');
 
 %% Parameters
 
-N_packet = 192;
+N_packet = 384;
 N_bit_per_pack = 128;
 CodeRate = 1/2;
 N_bits=N_bit_per_pack*N_packet;
@@ -18,7 +18,7 @@ N_taps = 101; %number of taps of the filter
 beta = 0.3; %Makes the window smoother as beta increases // roll-off factor given in the specifications
 
 
-EbNoArray = -4:1:15; %Energy of one by over the PSD of the noise ratio (in dB)
+EbNoArray = -4:1:16; %Energy of one by over the PSD of the noise ratio (in dB)
 Average = 100;
 BER_uncoded = zeros(1,length(EbNoArray));
 BER_SoftDecoded = zeros(1,length(EbNoArray));
