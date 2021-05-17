@@ -3,7 +3,7 @@ addpath('../1 Optimal communication chain over the ideal channel');
 
 %% Parameters
 
-N_packet = 96*2;
+N_packet = 96*4;
 N_bit_per_pack = 128;
 CodeRate = 1/2;
 N_bits=N_bit_per_pack*N_packet;
@@ -19,7 +19,7 @@ beta = 0.3; %Makes the window smoother as beta increases // roll-off factor give
 
 %% BER parameters
 Average = 50;
-EbNoArray = -2:1:20; %Energy of one by over the PSD of the noise ratio (in dB)
+EbNoArray = -4:1:20; %Energy of one by over the PSD of the noise ratio (in dB)
 max_iter_array = [1 2 4 8];
 
 H0 = makeLdpc(N_bit_per_pack, N_bit_per_pack/CodeRate,0,1,3); % Create initial parity check matrix
