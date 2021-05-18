@@ -3,7 +3,7 @@ addpath('../1 Optimal communication chain over the ideal channel');
 
 %% Parameters
 
-N_packet = 96*1;
+N_packet = 96*6;
 N_bit_per_pack = 128;
 CodeRate = 1/2;
 N_bits=N_bit_per_pack*N_packet;
@@ -11,7 +11,7 @@ Nbps = 4;    %Nombre of bits per symbol (1 = BPSK, 2 = 4QAM, 4 = 16QAM, 6 = 64QA
 f_cut = 1e6; %Hz Cutoff frequency
 fsymb = 2*f_cut; 
 T_symb = 1/fsymb;
-M = 100; %Upsampling factor (link to fsamp/fsymb)
+M = 16; %Upsampling factor (link to fsamp/fsymb)
 fsamp = 2*M*f_cut; % Sampling frequency (rule of thumb for the 10 25 times f_cut) Its the freq on which the conv of the filter and the signal will be done --> has to be the same !!!
 EbNo = 8; %Energy of one by over the PSD of the noise ratio (in dB)
 N_taps = 101; %number of taps of the filter
@@ -20,8 +20,8 @@ fs_passband= 2e9; %Hz
 CFO = 2; % CFO in ppm (2 to see something)
 
 %% BER parameters
-Average = 10;
-EbNoArray = -4:2:20; %Energy of one by over the PSD of the noise ratio (in dB)
+Average = 150;
+EbNoArray = 0:1:22; %Energy of one by over the PSD of the noise ratio (in dB)
 
 
 for m=[1]
@@ -33,6 +33,36 @@ for m=[1]
     BER_CFO_2 = zeros(1,length(EbNoArray));
     BER_CFO_3 = zeros(1,length(EbNoArray));
     BER_CFO_4 = zeros(1,length(EbNoArray));
+    
+    
+    if(Nbps == 1)
+        CFO_1_n = 20;
+        CFO_2_n = 40;
+        CFO_3_n = 50;
+        CFO_4_n = 55;
+    elseif(Nbps == 2)
+        CFO_1_n = 10;
+        CFO_2_n = 15;
+        CFO_3_n = 20;
+        CFO_4_n = 25;
+    elseif(Nbps == 4)
+        CFO_1_n = 4;
+        CFO_2_n = 6;
+        CFO_3_n = 8;
+        CFO_4_n = 10;
+    elseif(Nbps == 6)
+        CFO_1_n = 2;
+        CFO_2_n = 3;
+        CFO_3_n = 4;
+        CFO_4_n = 5;
+    end
+    
+        
+        
+    CFO_1 = fs_passband*CFO_1_n*1e-6; %CFO in Hz
+    CFO_2 = fs_passband*CFO_2_n*1e-6; %CFO in Hz
+    CFO_3 = fs_passband*CFO_3_n*1e-6; %CFO in Hz
+    CFO_4 = fs_passband*CFO_4_n*1e-6; %CFO in Hz
     
     for k=1:length(EbNoArray)
         k
@@ -78,11 +108,8 @@ for m=[1]
             %% Transmission Channel   
             signal_rx = NoiseAddition(signal_tx,EbNo,fsamp,Nbit_tx); 
             
-            %% CFO          
-            CFO_1 = fs_passband*0*1e-6; %CFO in Hz
-            CFO_2 = fs_passband*0.5*1e-6; %CFO in Hz
-            CFO_3 = fs_passband*1*1e-6; %CFO in Hz
-            CFO_4 = fs_passband*12*1e-6; %CFO in Hz
+            %% CFO     
+            
             [signal_rx_CFO_1, phase_shift] = Add_CFO_and_phase_shift(signal_rx,CFO_1,fsamp);
             [signal_rx_CFO_2, phase_shift] = Add_CFO_and_phase_shift(signal_rx,CFO_2,fsamp);
             [signal_rx_CFO_3, phase_shift] = Add_CFO_and_phase_shift(signal_rx,CFO_3,fsamp);
@@ -91,20 +118,20 @@ for m=[1]
             %% Receiver Filter
             matched_filter = flip(filter); 
             upsampled_symb_rx = conv(signal_rx,matched_filter,'valid'); 
-            upsampled_symb_rx_CFO_1 = conv(signal_rx_CFO_1,matched_filter,'valid');
-            upsampled_symb_rx_CFO_2 = conv(signal_rx_CFO_2,matched_filter,'valid'); 
-            upsampled_symb_rx_CFO_3 = conv(signal_rx_CFO_3,matched_filter,'valid'); 
-            upsampled_symb_rx_CFO_4 = conv(signal_rx_CFO_4,matched_filter,'valid'); 
+            t = (0:length(upsampled_symb_rx)-1)./fsamp;
+            upsampled_symb_rx_CFO_1 = conv(signal_rx_CFO_1,matched_filter,'valid').*exp(-1j*2*pi.*t*CFO_1);
+            upsampled_symb_rx_CFO_2 = conv(signal_rx_CFO_2,matched_filter,'valid').*exp(-1j*2*pi.*t*CFO_2); 
+            upsampled_symb_rx_CFO_3 = conv(signal_rx_CFO_3,matched_filter,'valid').*exp(-1j*2*pi.*t*CFO_3); 
+            upsampled_symb_rx_CFO_4 = conv(signal_rx_CFO_4,matched_filter,'valid').*exp(-1j*2*pi.*t*CFO_4); 
 
 
             %% Downsampling
-            symb_rx = DownSampling(upsampled_symb_rx,Nbit_tx,Nbps,M);
+            symb_rx = DownSampling(upsampled_symb_rx,Nbit_tx,Nbps,M);    
             
-            sampling_time_shift = 0;
-            symb_rx_CFO_1 = DownSampling(upsampled_symb_rx_CFO_1,Nbit_tx,Nbps,M,sampling_time_shift);%MULT
-            symb_rx_CFO_2 = DownSampling(upsampled_symb_rx_CFO_2,Nbit_tx,Nbps,M,sampling_time_shift);
-            symb_rx_CFO_3 = DownSampling(upsampled_symb_rx_CFO_3,Nbit_tx,Nbps,M,sampling_time_shift);
-            symb_rx_CFO_4 = DownSampling(upsampled_symb_rx_CFO_4,Nbit_tx,Nbps,M,sampling_time_shift);
+            symb_rx_CFO_1 = DownSampling(upsampled_symb_rx_CFO_1,Nbit_tx,Nbps,M);
+            symb_rx_CFO_2 = DownSampling(upsampled_symb_rx_CFO_2,Nbit_tx,Nbps,M);
+            symb_rx_CFO_3 = DownSampling(upsampled_symb_rx_CFO_3,Nbit_tx,Nbps,M);
+            symb_rx_CFO_4 = DownSampling(upsampled_symb_rx_CFO_4,Nbit_tx,Nbps,M);
             
 
             %% Demapping
@@ -154,8 +181,8 @@ for m=[1]
     semilogy(EbNoArray,BER_CFO_2,'-*');hold on;
     semilogy(EbNoArray,BER_CFO_3,'-*');hold on;
     semilogy(EbNoArray,BER_CFO_4,'-*');hold on;
-    grid on; title("BER Nbps = " + int2str(m));
-    legend('CFO = 0','CFO = 0.1','CFO = 0.5','CFO = 1','CFO = 2');
+    grid on; title("BER Nbps = " + int2str(m)+', M = '+int2str(M));
+    legend('NO CFO',"CFO = " + int2str(CFO_1_n),"CFO = " + int2str(CFO_2_n),"CFO = " + int2str(CFO_3_n),"CFO = " + int2str(CFO_4_n));
     xlabel("E_b/N_0 [dB]");
     ylabel("BER");
 
