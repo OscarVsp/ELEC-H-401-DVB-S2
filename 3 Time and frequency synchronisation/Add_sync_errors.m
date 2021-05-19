@@ -16,8 +16,9 @@ phase_shift = rand(1)*2*pi;
 %phase_shift = 0;
 N = length(r); n = 0:N-1;
 T = 1/fsamp;
-corrupted_signal = r;
-%corrupted_signal = r.*exp(1j*(2*pi*CFO*T.*n +phase_shift)); %multiplication by the complex exponential (CFO and phase shift)
+
+%corrupted_signal = r;
+corrupted_signal = r.*exp(1j*(2*pi*CFO*T.*n +phase_shift)); %multiplication by the complex exponential (CFO and phase shift)
 corrupted_signal = circshift(corrupted_signal,time_shift); %Time shift represented by a circular shift
 end
 
